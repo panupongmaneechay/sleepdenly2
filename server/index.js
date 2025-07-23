@@ -129,19 +129,18 @@ io.on('connection', (socket) => {
     if(card.type === 'add') {
         targetCharacter.currentSleep += card.value;
     } else if (card.type === 'subtract') {
-        // **L- Logic ใหม่ตาม Concept ที่คุณต้องการ**
         if (targetCharacter.currentSleep >= card.value) {
-            // กรณีปกติ: currentSleep พอให้หัก
             targetCharacter.currentSleep -= card.value;
         } else {
-            // กรณีพิเศษ: currentSleep ไม่พอ, ส่วนที่เหลือทะลุไปเพิ่ม sleepGoal
             const overflowDamage = card.value - targetCharacter.currentSleep;
             targetCharacter.currentSleep = 0;
             targetCharacter.sleepGoal += overflowDamage;
         }
+    } else if (card.type === 'instant_sleep') {
+        // **Logic สำหรับการ์ดใหม่**
+        targetCharacter.currentSleep = targetCharacter.sleepGoal;
     }
     state.log.unshift(`${currentPlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetCharacter.name}.`);
-
 
     const cardIndex = currentPlayer.hand.findIndex(c => c.name === card.name && c.description === card.description);
     if (cardIndex > -1) {

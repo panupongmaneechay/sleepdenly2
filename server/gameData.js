@@ -14,37 +14,37 @@ const characterCards = [
 ];
 
 const actionCards = [
-    // Common Cards (พบบ่อย)
+    // Common Cards
     { name: 'Warm Milk', description: '+1 hour of sleep', type: 'add', value: 1, rarity: 'common' },
     { name: 'Bright Room', description: 'Light disturbs sleep. -1 hour', type: 'subtract', value: 1, rarity: 'common' },
 
-    // Uncommon Cards (ไม่พบบ่อย)
+    // Uncommon Cards
     { name: 'Sleeping Pills', description: '+2 hours of sleep', type: 'add', value: 2, rarity: 'uncommon' },
     { name: 'Stay up late', description: 'Busy night. -2 hours', type: 'subtract', value: 2, rarity: 'uncommon' },
     
-    // Rare Cards (หายาก)
+    // Rare Cards
     { name: 'Lullaby', description: '+3 hours of sleep', type: 'add', value: 3, rarity: 'rare' },
     { name: 'Depressed', description: 'A heavy mind. -3 hours', type: 'subtract', value: 3, rarity: 'rare' },
+    { name: 'Lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, // **<-- การ์ดใหม่**
 ];
 
 const shuffleDeck = (deck) => {
     return deck.sort(() => Math.random() - 0.5);
 }
 
-// ฟังก์ชันใหม่: สร้างกองไพ่ตาม Rarity
 const createDeckFromRarity = () => {
     const deck = [];
     actionCards.forEach(card => {
         let copies = 0;
         switch (card.rarity) {
             case 'common':
-                copies = 50; // การ์ดธรรมดา มี 50 ใบในกอง
+                copies = 50;
                 break;
             case 'uncommon':
-                copies = 30; // การ์ดที่ไม่พบบ่อย มี 30 ใบ
+                copies = 30;
                 break;
             case 'rare':
-                copies = 10; // การ์ดหายาก มีแค่ใบเดียว
+                copies = 10;
                 break;
         }
         for (let i = 0; i < copies; i++) {
