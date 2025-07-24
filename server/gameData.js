@@ -13,21 +13,25 @@ const characterCards = [
     { name: 'RidChan', age: 11, sleepGoal: 9 },
     { name: 'Austin', age: 14, sleepGoal: 10 },
     { name: 'Hero', age: 15, sleepGoal: 8 }
-    ];
+];
 
 const actionCards = [
-    // Common Cards
-    { name: 'Warm Milk', description: '+1 hour of sleep', type: 'add', value: 1, rarity: 'common' },
-    { name: 'Bright Room', description: 'Light disturbs sleep. -1 hour', type: 'subtract', value: 1, rarity: 'common' },
+    //ADD
+    { name: 'no_daytime_naps', description: '+5 hour of sleep', type: 'add', value: 5, rarity: 'common' },
+    { name: 'avoid_heavymeals', description: '+4 hour of sleep', type: 'add', value: 4, rarity: 'common' },
+    { name: 'work_life_balance', description: '+4 hour of sleep', type: 'add', value: 4, rarity: 'common' },
+    { 
+      name: 'drink_alcohol', 
+      description: '+2 hour of sleep (for 18 years old)', 
+      type: 'add', 
+      value: 2, // แก้ไข value เป็น 2 ตาม description
+      rarity: 'common',
+      condition: { age: 18 } // เพิ่มเงื่อนไขอายุ
+    },
+    //SUBTRACT
+    { name: 'depression', description: 'disturbs sleep. -5 hour', type: 'subtract', value: 5, rarity: 'common' },
 
-    // Uncommon Cards
-    { name: 'Sleeping Pills', description: '+2 hours of sleep', type: 'add', value: 2, rarity: 'uncommon' },
-    { name: 'Stay up late', description: 'Busy night. -2 hours', type: 'subtract', value: 2, rarity: 'uncommon' },
-    
-    // Rare Cards
-    { name: 'Lullaby', description: '+3 hours of sleep', type: 'add', value: 3, rarity: 'rare' },
-    { name: 'Depressed', description: 'A heavy mind. -3 hours', type: 'subtract', value: 3, rarity: 'rare' },
-    { name: 'Lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, // **<-- การ์ดใหม่**
+    { name: 'lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
 ];
 
 const shuffleDeck = (deck) => {
@@ -40,17 +44,18 @@ const createDeckFromRarity = () => {
         let copies = 0;
         switch (card.rarity) {
             case 'common':
-                copies = 50;
+                copies = 20; // ลดจำนวนลงเพื่อให้สมดุลกับจำนวนการ์ดที่น้อยลง
                 break;
             case 'uncommon':
-                copies = 30;
+                copies = 10;
                 break;
             case 'rare':
-                copies = 10;
+                copies = 5;
                 break;
         }
         for (let i = 0; i < copies; i++) {
-            deck.push(card);
+            // สร้าง object ใหม่ทุกครั้งเพื่อให้เป็นการ์ดคนละใบ
+            deck.push({ ...card, id: `${card.name}_${i}` });
         }
     });
     return deck;

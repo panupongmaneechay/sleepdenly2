@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { ItemTypes } from './DraggableActionCard';
-import sleptImage from '../assets/status/slept.png'; // 1. Import รูปภาพสถานะหลับ
+import sleptImage from '../assets/status/slept.png';
 
 const characterImages = {
   en: import.meta.glob('../assets/character_en/*.png', { eager: true }),
@@ -28,13 +28,22 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) =
 
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
-    canDrop: () => !isSleeping,
+    canDrop: (item) => {
+      if (isSleeping) return false; // ถ้าหลับอยู่แล้ว วางไม่ได้
+
+      // ตรวจสอบเงื่อนไขการ์ด
+      const card = item.card;
+      if (card.condition && card.condition.age) {
+        return character.age >= card.condition.age;
+      }
+      return true; // ถ้าไม่มีเงื่อนไข ก็วางได้เสมอ
+    },
     drop: (item) => onCardDrop(item.card, playerId, character.name),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
     }),
-  }), [character, playerId, onCardDrop, isSleeping]);
+  }), [character, playerId, onCardDrop, isSleeping, language]);
 
   const getOverlayColor = () => {
     if (isOver && canDrop) return 'rgba(102, 187, 106, 0.5)';
@@ -54,7 +63,6 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) =
         {imageUrl && <img src={imageUrl} alt={character.name} className="character-image" />}
         <div className="card-overlay" style={{ backgroundColor: getOverlayColor() }}></div>
         
-        {/* 2. เพิ่มส่วนแสดงผลเมื่อตัวละครหลับ */}
         {isSleeping && (
           <>
             <img src={sleptImage} alt="Slept" className="slept-overlay-image" />
@@ -65,17 +73,8 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) =
             </div>
           </>
         )}
-
-        <div className="character-info-overlay-top">
-          {/* ว่าง */}
-        </div>
-
-        <div className="character-info-overlay-bottom">
-            {/* ว่าง */}
-        </div>
       </div>
 
-      {/* ซ่อน Progress bar และตัวเลขเมื่อหลับ */}
       {!isSleeping && (
         <div className="sleep-details">
           <progress value={character.currentSleep} max={character.sleepGoal}></progress>

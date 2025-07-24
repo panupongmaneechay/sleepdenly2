@@ -1,17 +1,35 @@
 // client/src/components/DraggableActionCard.jsx
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDrag } from 'react-dnd';
 
-// เรากำหนด 'type' ของสิ่งของที่ลากได้ เพื่อให้ Drop Target รู้ว่ารับอะไรได้บ้าง
 export const ItemTypes = {
   CARD: 'card',
 };
 
-const DraggableActionCard = ({ card }) => {
+// โหลดรูปภาพทั้งหมดเข้ามา
+const actionCardImages = {
+  en: import.meta.glob('../assets/action_en/*.png', { eager: true }),
+  th: import.meta.glob('../assets/action_th/*.png', { eager: true }),
+  jp: import.meta.glob('../assets/action_jp/*.png', { eager: true }),
+};
+
+const DraggableActionCard = ({ card, language }) => {
+  const [imageUrl, setImageUrl] = useState('');
+
+  useEffect(() => {
+    const images = actionCardImages[language] || actionCardImages['en'];
+    const imagePath = Object.keys(images).find(path => path.includes(`/${card.name}.png`));
+    if (imagePath) {
+      setImageUrl(images[imagePath].default);
+    } else {
+      setImageUrl(''); // หรือใส่ URL รูปภาพสำรอง
+    }
+  }, [card.name, language]);
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.CARD,
-    item: { card }, // ข้อมูลที่จะส่งไปพร้อมกับการลาก คือข้อมูลของการ์ดใบนี้
+    item: { card },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -19,15 +37,17 @@ const DraggableActionCard = ({ card }) => {
 
   return (
     <div
-      ref={drag} // บอกให้ react-dnd รู้ว่า div นี้คือส่วนที่ลากได้
-      className="action-card"
+      ref={drag}
+      className="action-card image-action-card"
       style={{
-        opacity: isDragging ? 0.5 : 1, // ทำให้การ์ดโปร่งใสตอนกำลังลาก
-        cursor: 'grab',
+        opacity: isDragging ? 0.5 : 1,
       }}
     >
-      <strong>{card.name}</strong>
-      <p>{card.description}</p>
+      {imageUrl ? (
+        <img src={imageUrl} alt={card.name} />
+      ) : (
+        <div className="card-placeholder">{card.name}</div>
+      )}
     </div>
   );
 };

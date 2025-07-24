@@ -5,7 +5,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
-const { characterCards, shuffleDeck, createDeckFromRarity } = require('./gameData');
+const { characterCards, actionCards, shuffleDeck, createDeckFromRarity } = require('./gameData');
 const { handleBotTurn } = require('./botAI');
 
 const app = express();
@@ -43,7 +43,6 @@ const endTurn = (roomId) => {
     const nextPlayer = state.players[state.currentPlayerIndex];
     state.log.unshift(`--- ${currentPlayer.name}'s turn ended. Now it's ${nextPlayer.name}'s turn. ---`);
 
-    // **[แก้ไข]** เพิ่มเวอร์ชันก่อนส่ง
     state.turnVersion++;
     io.to(roomId).emit('update_game_state', state);
 
@@ -120,7 +119,7 @@ io.on('connection', (socket) => {
             discardPile: [],
             currentPlayerIndex: 0,
             log: ["Game has started!"],
-            turnVersion: 0, // **[แก้ไข]** เพิ่ม turnVersion เริ่มต้น
+            turnVersion: 0,
         };
         room.players.forEach(player => {
             gameState.players.push({
@@ -151,16 +150,24 @@ io.on('connection', (socket) => {
     const state = room.gameState;
     const currentPlayer = state.players[state.currentPlayerIndex];
     if (currentPlayer.id !== socket.id) return socket.emit('error_message', "It's not your turn!");
-
+    
     const targetPlayer = state.players.find(p => p.id === targetPlayerId);
     const targetCharacter = targetPlayer.characters.find(c => c.name === targetCharacterName);
+    
+    const originalCardData = actionCards.find(c => c.name === card.name);
+    if (originalCardData && originalCardData.condition) {
+        if (originalCardData.condition.age && targetCharacter.age < originalCardData.condition.age) {
+            return socket.emit('error_message', `${targetCharacter.name} is too young to use ${originalCardData.name}.`);
+        }
+    }
 
     if (targetCharacter.currentSleep === targetCharacter.sleepGoal && targetCharacter.sleepGoal > 0) {
         return socket.emit('error_message', `${targetCharacter.name} is already sleeping perfectly and cannot be targeted.`);
     }
 
+    // --- [แก้ไข] Logic การเพิ่มเวลานอน ---
     if(card.type === 'add') {
-        targetCharacter.currentSleep += card.value;
+        targetCharacter.currentSleep += card.value; // เอา Math.min ออก
     } else if (card.type === 'subtract') {
         if (targetCharacter.currentSleep >= card.value) {
             targetCharacter.currentSleep -= card.value;
@@ -172,14 +179,17 @@ io.on('connection', (socket) => {
     } else if (card.type === 'instant_sleep') {
         targetCharacter.currentSleep = targetCharacter.sleepGoal;
     }
+    // --- สิ้นสุดการแก้ไข ---
+
     state.log.unshift(`${currentPlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetCharacter.name}.`);
 
-    const cardIndex = currentPlayer.hand.findIndex(c => c.name === card.name && c.description === card.description);
+    const cardIndex = currentPlayer.hand.findIndex(c => c.id === card.id);
     if (cardIndex > -1) {
         const playedCard = currentPlayer.hand.splice(cardIndex, 1)[0];
         state.discardPile.push(playedCard);
     }
-
+    
+    // Logic การนับตัวละครที่หลับ (ยังคงถูกต้อง)
     const newSleptCount = targetPlayer.characters.filter(c => c.sleepGoal > 0 && c.currentSleep === c.sleepGoal).length;
     targetPlayer.sleptCharacters = newSleptCount;
 
@@ -192,7 +202,6 @@ io.on('connection', (socket) => {
         state.log.unshift(`${currentPlayer.name} has no cards left, ending turn automatically.`);
         endTurn(roomId);
     } else {
-        // **[แก้ไข]** เพิ่มเวอร์ชันก่อนส่ง
         state.turnVersion++;
         io.to(roomId).emit('update_game_state', state);
     }

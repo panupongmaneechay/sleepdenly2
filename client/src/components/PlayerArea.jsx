@@ -15,7 +15,7 @@ const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language }) => {
                         character={char}
                         playerId={player.id}
                         onCardDrop={onCardDrop}
-                        language={language} // ส่งภาษาต่อไป
+                        language={language}
                     />
                 ))}
             </div>
@@ -23,10 +23,11 @@ const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language }) => {
                 <div className="hand">
                     <h4>Your Hand {isMyTurn ? "(Drag a card to play)" : "(Wait for your turn)"}</h4>
                     <div className="action-cards">
-                    {player.hand.map((card, index) => (
+                    {player.hand.map((card) => (
                         <DraggableActionCard
-                           key={`${card.name}-${index}`}
+                           key={card.id}
                            card={card}
+                           language={language} // ส่งภาษาต่อไป
                         />
                     ))}
                     </div>
