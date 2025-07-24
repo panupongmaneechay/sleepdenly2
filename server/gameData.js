@@ -12,7 +12,24 @@ const characterCards = [
     { name: 'Miwa', age: 10, sleepGoal: 9 },
     { name: 'RidChan', age: 11, sleepGoal: 9 },
     { name: 'Austin', age: 14, sleepGoal: 10 },
-    { name: 'Hero', age: 15, sleepGoal: 8 }
+    { name: 'Hero', age: 15, sleepGoal: 8 },
+    { name: 'Brian', age: 16, sleepGoal: 8 },
+    { name: 'Benz', age: 16, sleepGoal: 10 },
+    { name: 'Rosie', age: 17, sleepGoal: 10 },
+    { name: 'Yuka', age: 19, sleepGoal: 8 },
+    { name: 'Gohan', age: 19, sleepGoal: 8 },
+    { name: 'Gigi', age: 22, sleepGoal: 9 },
+    { name: 'Luna', age: 24, sleepGoal: 7 },
+    { name: 'Chris', age: 34, sleepGoal: 7 },
+    { name: 'Jerico', age: 35, sleepGoal: 8 },
+    { name: 'Fina', age: 48, sleepGoal: 8 },
+    { name: 'Peter', age: 19, sleepGoal: 9 },
+    { name: 'Shereen', age: 63, sleepGoal: 7 },
+    { name: 'Lee', age: 64, sleepGoal: 7 },
+    { name: 'William', age: 72, sleepGoal: 8 },
+    { name: 'Violette', age: 74, sleepGoal: 7 },
+    { name: 'Wendy', age: 77, sleepGoal: 8 },
+    { name: 'Kate', age: 84, sleepGoal: 8 }
 ];
 
 const actionCards = [
