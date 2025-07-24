@@ -1,7 +1,6 @@
 // client/src/components/PlayerArea.jsx
 
 import React from 'react';
-import DraggableActionCard from './DraggableActionCard';
 import DroppableCharacterCard from './DroppableCharacterCard';
 
 // [แก้ไข] เพิ่ม = [] เพื่อกำหนดค่าเริ่มต้นให้ floatingTexts
@@ -22,21 +21,7 @@ const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language, onSpecia
                     />
                 ))}
             </div>
-            {isMyArea && (
-                <div className="hand">
-                    <h4>Your Hand {isMyTurn ? "(Drag a card to play)" : "(Wait for your turn)"}</h4>
-                    <div className="action-cards">
-                    {player.hand.map((card) => (
-                        <DraggableActionCard
-                           key={card.id}
-                           card={card}
-                           language={language}
-                           onClick={onSpecialCardClick}
-                        />
-                    ))}
-                    </div>
-                </div>
-            )}
+            {/* ส่วนของ Hand ถูกลบออกจากไฟล์นี้ */}
         </div>
     );
 };

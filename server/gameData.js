@@ -97,10 +97,10 @@ const createDeckFromRarity = () => {
         let copies = 0;
         switch (card.rarity) {
             case 'common':
-                copies = 20;
+                copies = 30;
                 break;
             case 'uncommon':
-                copies = 10;
+                copies = 5;
                 break;
             case 'rare':
                 copies = 15;

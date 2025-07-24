@@ -5,6 +5,7 @@ import PlayerArea from './PlayerArea';
 import PlayerSelectionModal from './PlayerSelectionModal';
 import ConfirmationModal from './ConfirmationModal';
 import GameLog from './GameLog';
+import DraggableActionCard from './DraggableActionCard'; // เพิ่ม Import นี้
 import endTurnButtonImage from '../assets/button/end.png';
 
 const Game = ({ gameState, myId, socket, language }) => {
@@ -190,6 +191,23 @@ const Game = ({ gameState, myId, socket, language }) => {
                 </div>
             </div>
             
+            {/* ส่วนแสดง Action Card ที่แยกออกมาใหม่ */}
+            {me && (
+                <div className="action-hand-container">
+                    <h4>Your Hand {isMyTurn ? "(Drag a card to play)" : "(Wait for your turn)"}</h4>
+                    <div className="action-cards">
+                        {me.hand.map((card) => (
+                            <DraggableActionCard
+                                key={card.id}
+                                card={card}
+                                language={language}
+                                onClick={handleSpecialCardClick}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <GameLog logs={gameState.log} />
         </>
     );
