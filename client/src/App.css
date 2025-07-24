@@ -1,5 +1,5 @@
 /* client/src/App.css */
-
+@import './styles/PlayerSelectionModal.css';
 .App {
   text-align: center;
   font-family: sans-serif;

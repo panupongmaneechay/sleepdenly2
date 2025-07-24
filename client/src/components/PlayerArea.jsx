@@ -4,7 +4,7 @@ import React from 'react';
 import DraggableActionCard from './DraggableActionCard';
 import DroppableCharacterCard from './DroppableCharacterCard';
 
-const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language }) => {
+const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language, onSpecialCardClick }) => {
     return (
         <div className={`player-area ${isMyArea ? 'my-player-area' : 'opponent-player-area'}`}>
             <h3>{player.name} (Slept: {player.sleptCharacters}/3)</h3>
@@ -27,7 +27,8 @@ const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language }) => {
                         <DraggableActionCard
                            key={card.id}
                            card={card}
-                           language={language} // ส่งภาษาต่อไป
+                           language={language}
+                           onClick={onSpecialCardClick} // ส่ง onSpecialCardClick ต่อไป
                         />
                     ))}
                     </div>

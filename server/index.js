@@ -24,8 +24,10 @@ const endTurn = (roomId) => {
     if (!room || !room.gameState) return;
     const state = room.gameState;
     const currentPlayer = state.players[state.currentPlayerIndex];
-    let cardsToDraw = 5 - currentPlayer.hand.length;
-    if (cardsToDraw > 0) {
+    
+    // เงื่อนไขการจั่วการ์ด: จั่วต่อเมื่อการ์ดในมือน้อยกว่า 5 ใบ
+    if (currentPlayer.hand.length < 5) {
+        let cardsToDraw = 5 - currentPlayer.hand.length;
         for(let i = 0; i < cardsToDraw; i++) {
             if (state.deck.length === 0) {
                 if (state.discardPile.length === 0) {
@@ -39,6 +41,7 @@ const endTurn = (roomId) => {
             currentPlayer.hand.push(state.deck.pop());
         }
     }
+
     state.currentPlayerIndex = (state.currentPlayerIndex + 1) % room.maxPlayers;
     const nextPlayer = state.players[state.currentPlayerIndex];
     state.log.unshift(`--- ${currentPlayer.name}'s turn ended. Now it's ${nextPlayer.name}'s turn. ---`);
@@ -165,9 +168,8 @@ io.on('connection', (socket) => {
         return socket.emit('error_message', `${targetCharacter.name} is already sleeping perfectly and cannot be targeted.`);
     }
 
-    // --- [แก้ไข] Logic การเพิ่มเวลานอน ---
     if(card.type === 'add') {
-        targetCharacter.currentSleep += card.value; // เอา Math.min ออก
+        targetCharacter.currentSleep += card.value;
     } else if (card.type === 'subtract') {
         if (targetCharacter.currentSleep >= card.value) {
             targetCharacter.currentSleep -= card.value;
@@ -179,8 +181,6 @@ io.on('connection', (socket) => {
     } else if (card.type === 'instant_sleep') {
         targetCharacter.currentSleep = targetCharacter.sleepGoal;
     }
-    // --- สิ้นสุดการแก้ไข ---
-
     state.log.unshift(`${currentPlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetCharacter.name}.`);
 
     const cardIndex = currentPlayer.hand.findIndex(c => c.id === card.id);
@@ -189,7 +189,6 @@ io.on('connection', (socket) => {
         state.discardPile.push(playedCard);
     }
     
-    // Logic การนับตัวละครที่หลับ (ยังคงถูกต้อง)
     const newSleptCount = targetPlayer.characters.filter(c => c.sleepGoal > 0 && c.currentSleep === c.sleepGoal).length;
     targetPlayer.sleptCharacters = newSleptCount;
 
@@ -205,6 +204,32 @@ io.on('connection', (socket) => {
         state.turnVersion++;
         io.to(roomId).emit('update_game_state', state);
     }
+  });
+
+  socket.on('steal_cards', (data) => {
+    const { roomId, card, targetPlayerId } = data;
+    const room = rooms[roomId];
+    if (!room || !room.gameState) return;
+    const state = room.gameState;
+    const currentPlayer = state.players.find(p => p.id === socket.id);
+    const targetPlayer = state.players.find(p => p.id === targetPlayerId);
+
+    if (!currentPlayer || !targetPlayer) return;
+
+    const stolenCards = [...targetPlayer.hand];
+    targetPlayer.hand = [];
+    currentPlayer.hand.push(...stolenCards);
+
+    const cardIndex = currentPlayer.hand.findIndex(c => c.id === card.id);
+    if (cardIndex > -1) {
+        const playedCard = currentPlayer.hand.splice(cardIndex, 1)[0];
+        state.discardPile.push(playedCard);
+    }
+    
+    state.log.unshift(`--- ${currentPlayer.name} used Thief and stole ${stolenCards.length} cards from ${targetPlayer.name}! ---`);
+    
+    state.turnVersion++;
+    io.to(roomId).emit('update_game_state', state);
   });
 
   socket.on('end_turn', ({ roomId }) => {
