@@ -1,6 +1,7 @@
 // client/src/components/Home.jsx
 
 import React from 'react';
+import '../styles/Home.css'; // <-- เพิ่มบรรทัดนี้
 
 const Home = ({ onStartGame, onJoinGame }) => {
   return (
@@ -14,28 +15,7 @@ const Home = ({ onStartGame, onJoinGame }) => {
           Join Game
         </button>
       </div>
-      <style jsx>{`
-        .home-menu {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-          margin-top: 2rem;
-        }
-        .menu-button {
-          padding: 15px 30px;
-          font-size: 1.2rem;
-          cursor: pointer;
-          background-color: #007bff;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          width: 200px;
-        }
-        .menu-button:hover {
-          background-color: #0056b3;
-        }
-      `}</style>
+      {/* <style jsx>...</style> ถูกลบออกไปแล้ว */}
     </div>
   );
 };

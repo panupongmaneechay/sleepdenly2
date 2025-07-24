@@ -12,7 +12,7 @@ import JoinGame from './components/JoinGame';
 const socket = io("http://localhost:3001");
 
 function App() {
-  const [view, setView] = useState('home'); // 'home', 'create', 'join', 'game', 'waiting'
+  const [view, setView] = useState('home');
   const [room, setRoom] = useState(null);
   const [gameState, setGameState] = useState(null);
   const [gameOver, setGameOver] = useState(null);
@@ -45,7 +45,6 @@ function App() {
     });
 
     socket.on('update_game_state', (newGameState) => {
-      // **[แก้ไข]** เพิ่มการตรวจสอบเวอร์ชัน
       setGameState(currentState => {
         if (newGameState.turnVersion > (currentState?.turnVersion ?? -1)) {
           console.log(`Game state updated from v${currentState?.turnVersion ?? -1} to v${newGameState.turnVersion}`);
@@ -96,14 +95,14 @@ function App() {
     socket.emit('join_room', { roomId });
   };
 
-  const renderView = () => {
+  const renderContent = () => {
     if (gameOver) {
       return (
-          <div className="App">
+          <>
               <h1>Game Over!</h1>
               <h2>Winner is: {gameOver}</h2>
               <button className="create-button" onClick={() => window.location.reload()}>Play Again</button>
-          </div>
+          </>
       );
     }
 
@@ -114,7 +113,6 @@ function App() {
         return <JoinGame onJoin={handleJoinRoom} onBack={() => setView('home')} />;
       case 'create':
         return (
-          <div className="App">
             <div className="create-room-form">
               <h2>Create a Room</h2>
               <div className="form-group">
@@ -138,7 +136,6 @@ function App() {
               </button>
                <button onClick={() => setView('home')} className="back-button" style={{marginLeft: '10px', backgroundColor: '#6c757d'}}>Back</button>
             </div>
-          </div>
         );
       case 'waiting':
         if (!room) return null;
@@ -148,7 +145,7 @@ function App() {
             }
           }
         return (
-          <div className="App">
+          <>
             <h1>Room ID: {room.id}</h1>
             <h2>Waiting for players... ({room.players.length + room.bots}/{room.maxPlayers})</h2>
             <h3>Players:</h3>
@@ -160,27 +157,26 @@ function App() {
                <button onClick={addBot} className="create-button">Add Bot</button>
             )}
             <p>Waiting for the game to start...</p>
-          </div>
+          </>
         );
       case 'game':
-        if (!gameState) return null; // เพิ่มการตรวจสอบ gameState ก่อน render
+        if (!gameState) return null;
         return (
           <DndProvider backend={HTML5Backend}>
-              <div className="App">
-                  <Game
-                      gameState={gameState}
-                      myId={socket.id}
-                      socket={socket}
-                  />
-              </div>
+            <Game gameState={gameState} myId={socket.id} socket={socket} />
           </DndProvider>
         );
       default:
         return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
     }
   };
-
-  return renderView();
+  
+  // **[แก้ไข]** สร้าง Wrapper div ที่ครอบทุกอย่าง และใส่ className แบบมีเงื่อนไข
+  return (
+    <div className={view === 'game' ? 'App app-game-background' : 'App'}>
+      {renderContent()}
+    </div>
+  );
 }
 
 export default App;

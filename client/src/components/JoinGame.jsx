@@ -1,6 +1,7 @@
 // client/src/components/JoinGame.jsx
 
 import React, { useState } from 'react';
+import '../styles/JoinGame.css'; // <-- เพิ่มบรรทัดนี้
 
 const JoinGame = ({ onJoin, onBack }) => {
   const [roomId, setRoomId] = useState('');
@@ -33,31 +34,7 @@ const JoinGame = ({ onJoin, onBack }) => {
           Back
         </button>
       </div>
-      <style jsx>{`
-        .join-game-form {
-          display: inline-block;
-          padding: 2rem;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          background-color: #f9f9f9;
-        }
-        .room-id-input {
-          padding: 10px;
-          font-size: 16px;
-          border-radius: 4px;
-          border: 1px solid #ccc;
-          width: 250px;
-          margin-bottom: 1rem;
-        }
-        .back-button {
-            margin-top: 1rem;
-            margin-left: 10px;
-            background-color: #6c757d;
-        }
-        .back-button:hover {
-            background-color: #5a6268;
-        }
-      `}</style>
+      {/* <style jsx>...</style> ถูกลบออกไปแล้ว */}
     </div>
   );
 };

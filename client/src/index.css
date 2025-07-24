@@ -1,3 +1,5 @@
+/* client/src/index.css */
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -24,11 +26,21 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  /* ลบ 3 บรรทัดนี้ออก:
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+  */
   min-height: 100vh;
 }
+
+/* ทำให้ div#root ซึ่งเป็นคอนเทนเนอร์หลักของ React เต็มความสูง */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 
 h1 {
   font-size: 3.2em;

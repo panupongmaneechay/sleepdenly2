@@ -1,9 +1,26 @@
+/* client/src/App.css */
+
 .App {
   text-align: center;
-  margin-top: 50px;
   font-family: sans-serif;
   padding: 1rem;
+  /* เพิ่ม flex property เพื่อให้เนื้อหาขยายเต็มพื้นที่ */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
+
+.app-game-background {
+  background-image: url('/background.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  padding: 1rem 0;
+}
+
 
 .create-room-form {
   display: inline-block;
@@ -49,11 +66,14 @@ ul {
     padding: 0;
 }
 
-/* Styles for Game Board */
 .game-board {
   padding: 1rem;
   max-width: 1200px;
+  width: 100%; /* เพิ่ม width 100% */
   margin: auto;
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: transparent;
 }
 
 .opponents-area {
@@ -68,12 +88,12 @@ ul {
   border-radius: 8px;
   padding: 1rem;
   margin: 0.5rem;
-  background-color: #f4f4f4;
+  background-color: rgba(244, 244, 244, 0.9);
   flex: 1;
 }
 
 .my-player-area {
-  background-color: #e3f2fd;
+  background-color: rgba(227, 242, 253, 0.9);
   border-color: #007bff;
 }
 
@@ -112,7 +132,7 @@ ul {
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
-  min-height: 150px; /* ให้มีพื้นที่เสมอ */
+  min-height: 150px;
 }
 
 .action-card {
@@ -151,6 +171,11 @@ progress {
   align-items: center;
   gap: 2rem;
   margin-bottom: 1rem;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 10px 20px;
+  border-radius: 12px;
+  display: inline-block;
+  border: 1px solid #ddd;
 }
 
 .end-turn-button {
