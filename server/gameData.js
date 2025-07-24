@@ -33,7 +33,9 @@ const actionCards = [
     
     //SPECIAL
     { name: 'thief', description: 'Steal all cards from another player.', type: 'special_steal', rarity: 'rare' },
-    { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'rare' }, // <-- เพิ่มการ์ดใหม่
+    { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'rare' }, 
+    { name: 'prevent', description: 'Prevent an action against you.', type: 'reaction_prevent', rarity: 'rare' },
+    { name: 'break_down_defenses', description: 'Break a \'prevent\' card.', type: 'reaction_counter', rarity: 'rare' },
     { name: 'Lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
 ];
 
@@ -53,7 +55,7 @@ const createDeckFromRarity = () => {
                 copies = 10;
                 break;
             case 'rare':
-                copies = 50;
+                copies = 5;
                 break;
         }
         for (let i = 0; i < copies; i++) {

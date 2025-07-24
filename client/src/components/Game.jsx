@@ -1,14 +1,39 @@
 // client/src/components/Game.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PlayerArea from './PlayerArea';
 import PlayerSelectionModal from './PlayerSelectionModal';
+import ConfirmationModal from './ConfirmationModal';
 import endTurnButtonImage from '../assets/button/end.png';
 
 const Game = ({ gameState, myId, socket, language }) => {
     const [isStealModalOpen, setIsStealModalOpen] = useState(false);
     const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
     const [specialCard, setSpecialCard] = useState(null);
+    const [confirmation, setConfirmation] = useState(null);
+
+    useEffect(() => {
+        socket.on('action_request', (data) => {
+            setConfirmation({
+                type: 'prevent',
+                message: data.message,
+                actionData: data.actionData
+            });
+        });
+
+        socket.on('counter_request', (data) => {
+            setConfirmation({
+                type: 'counter',
+                message: data.message
+            });
+        });
+
+        return () => {
+            socket.off('action_request');
+            socket.off('counter_request');
+        };
+    }, [socket]);
+
 
     const me = gameState.players.find(p => p.id === myId);
     const otherPlayers = gameState.players.filter(p => p.id !== myId);
@@ -24,8 +49,6 @@ const Game = ({ gameState, myId, socket, language }) => {
                 targetPlayerId: targetPlayerId,
                 targetCharacterName: targetCharacterName
             });
-        } else {
-            alert("It's not your turn!");
         }
     };
 
@@ -36,10 +59,7 @@ const Game = ({ gameState, myId, socket, language }) => {
     };
 
     const handleSpecialCardClick = (card) => {
-        if (!isMyTurn) {
-            alert("It's not your turn!");
-            return;
-        }
+        if (!isMyTurn) return;
         setSpecialCard(card);
         if (card.type === 'special_steal') {
             setIsStealModalOpen(true);
@@ -53,19 +73,12 @@ const Game = ({ gameState, myId, socket, language }) => {
     };
 
     const handleSelectPlayer = (targetPlayerId) => {
-        if (specialCard.type === 'special_steal') {
-            socket.emit('steal_cards', {
-                roomId: gameState.roomId,
-                card: specialCard,
-                targetPlayerId: targetPlayerId,
-            });
-        } else if (specialCard.type === 'special_swap') {
-            socket.emit('swap_cards', {
-                roomId: gameState.roomId,
-                card: specialCard,
-                targetPlayerId: targetPlayerId,
-            });
-        }
+        const eventName = specialCard.type === 'special_steal' ? 'steal_cards' : 'swap_cards';
+        socket.emit(eventName, {
+            roomId: gameState.roomId,
+            card: specialCard,
+            targetPlayerId: targetPlayerId,
+        });
         closeModal();
     };
 
@@ -73,6 +86,15 @@ const Game = ({ gameState, myId, socket, language }) => {
         setIsStealModalOpen(false);
         setIsSwapModalOpen(false);
         setSpecialCard(null);
+    };
+    
+    const handleConfirmation = (useCard) => {
+        if (confirmation.type === 'prevent') {
+            socket.emit('action_response', { roomId: gameState.roomId, useCard });
+        } else if (confirmation.type === 'counter') {
+            socket.emit('counter_response', { roomId: gameState.roomId, useCard });
+        }
+        setConfirmation(null);
     };
 
     let topPlayer = null;
@@ -94,6 +116,14 @@ const Game = ({ gameState, myId, socket, language }) => {
 
     return (
         <>
+            {confirmation && (
+                <ConfirmationModal 
+                    message={confirmation.message}
+                    onConfirm={() => handleConfirmation(true)}
+                    onDecline={() => handleConfirmation(false)}
+                />
+            )}
+
             {(isStealModalOpen || isSwapModalOpen) && (
                 <PlayerSelectionModal 
                     title={isStealModalOpen ? "Who to steal from?" : "Who to swap with?"}

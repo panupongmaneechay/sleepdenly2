@@ -1,0 +1,43 @@
+/* client/src/styles/ConfirmationModal.css */
+
+.confirmation-modal {
+    max-width: 400px;
+}
+
+.confirmation-modal p {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.confirm-button, .decline-button {
+    padding: 10px 30px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.confirm-button {
+    background-color: #28a745;
+    color: white;
+}
+
+.confirm-button:hover {
+    background-color: #218838;
+}
+
+.decline-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.decline-button:hover {
+    background-color: #c82333;
+}

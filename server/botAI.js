@@ -1,73 +1,91 @@
 // server/botAI.js
 
-const handleBotTurn = (roomId, rooms, endTurn) => {
+const handleBotTurn = (roomId, rooms, endTurn, executeAction) => {
     const room = rooms[roomId];
-    if (!room || !room.gameState) return;
+    if (!room || !room.gameState) {
+        console.log(`Bot turn ended prematurely for room ${roomId} as it no longer exists.`);
+        return;
+    }
+
     const state = room.gameState;
     const botPlayer = state.players[state.currentPlayerIndex];
+    const otherPlayers = state.players.filter(p => p.id !== botPlayer.id);
 
     setTimeout(() => {
-        let cardPlayed = false;
-        
-        // **สอนให้บอทใช้การ์ด Lucky ก่อน เพราะเป็นการ์ดที่ดีที่สุด**
-        for (let i = 0; i < botPlayer.hand.length; i++) {
-            const card = botPlayer.hand[i];
+        // สร้างรายการการ์ดที่ "สามารถเล่นได้" ในเทิร์นนี้
+        const playableCards = botPlayer.hand.filter(card => 
+            !card.type.startsWith('reaction_') // ไม่เล่นการ์ดป้องกัน/เคาน์เตอร์
+        );
 
-            if (card.type === 'instant_sleep') {
-                // หาตัวละครตัวเองที่ยังไม่หลับ เพื่อใช้การ์ดใส่
-                const targetChar = botPlayer.characters.find(c => c.sleepGoal > 0 && c.currentSleep !== c.sleepGoal);
-                if (targetChar) {
-                    targetChar.currentSleep = targetChar.sleepGoal;
-                    state.log.unshift(`(BOT) ${botPlayer.name} used the Lucky card on their ${targetChar.name}!`);
-                    botPlayer.hand.splice(i, 1);
-                    cardPlayed = true;
-                    break;
-                }
+        if (playableCards.length === 0) {
+            // ถ้าไม่มีการ์ดเล่นได้เลย ให้จบเทิร์น
+            console.log(`Bot ${botPlayer.name} has no playable cards and ends its turn.`);
+            endTurn(roomId);
+            return;
+        }
+
+        let actionTaken = false;
+
+        // Logic การตัดสินใจของ Bot (เรียงตามลำดับความสำคัญ)
+        // 1. พยายามใช้การ์ด Lucky กับตัวเองก่อน
+        const luckyCard = playableCards.find(c => c.type === 'instant_sleep');
+        if (luckyCard) {
+            const targetChar = botPlayer.characters.find(c => c.currentSleep !== c.sleepGoal);
+            if (targetChar) {
+                executeAction(roomId, { card: luckyCard, sourcePlayerId: botPlayer.id, targetPlayerId: botPlayer.id, targetCharacterName: targetChar.name });
+                actionTaken = true;
+            }
+        }
+
+        // 2. ถ้ายังไม่ได้เล่น ให้ลองใช้การ์ดพิเศษอื่นๆ (Thief, Swap)
+        if (!actionTaken && otherPlayers.length > 0) {
+            const thiefCard = playableCards.find(c => c.type === 'special_steal');
+            if (thiefCard) {
+                // ขโมยผู้เล่นที่มีการ์ดเยอะที่สุด
+                const targetPlayer = otherPlayers.reduce((prev, current) => (prev.hand.length > current.hand.length) ? prev : current);
+                executeAction(roomId, { card: thiefCard, sourcePlayerId: botPlayer.id, targetPlayerId: targetPlayer.id });
+                actionTaken = true;
             }
         }
         
-        // ถ้ายังไม่ได้เล่นการ์ด Lucky ให้เล่นการ์ดอื่นตามปกติ
-        if (!cardPlayed) {
-            for (let i = 0; i < botPlayer.hand.length; i++) {
-                const card = botPlayer.hand[i];
-                
+        if (!actionTaken && otherPlayers.length > 0) {
+            const swapCard = playableCards.find(c => c.type === 'special_swap');
+            // ใช้ swap ต่อเมื่อตัวเองมีการ์ดน้อยกว่า 3 ใบ และมีคนอื่นที่มีการ์ดมากกว่า
+            const targetPlayer = otherPlayers.find(p => p.hand.length > botPlayer.hand.length);
+            if (swapCard && botPlayer.hand.length < 3 && targetPlayer) {
+                 executeAction(roomId, { card: swapCard, sourcePlayerId: botPlayer.id, targetPlayerId: targetPlayer.id });
+                 actionTaken = true;
+            }
+        }
+        
+        // 3. ถ้ายังไม่ได้เล่น ให้เล่นการ์ด add/subtract ตามปกติ
+        if (!actionTaken) {
+            for (let card of playableCards) {
                 if (card.type === 'add') {
                     const targetChar = botPlayer.characters.find(c => c.currentSleep < c.sleepGoal);
                     if (targetChar) {
-                        targetChar.currentSleep += card.value;
-                        state.log.unshift(`(BOT) ${botPlayer.name} used ${card.name} on their ${targetChar.name}.`);
-                        botPlayer.hand.splice(i, 1);
-                        cardPlayed = true;
+                        executeAction(roomId, { card: card, sourcePlayerId: botPlayer.id, targetPlayerId: botPlayer.id, targetCharacterName: targetChar.name });
+                        actionTaken = true;
                         break;
                     }
                 } else if (card.type === 'subtract') {
                     const humanPlayers = state.players.filter(p => !p.isBot);
                     if (humanPlayers.length > 0) {
                         const targetPlayer = humanPlayers[Math.floor(Math.random() * humanPlayers.length)];
-                        const availableTargets = targetPlayer.characters.filter(c => c.sleepGoal > 0 && c.currentSleep !== c.sleepGoal);
-    
-                        if (availableTargets.length > 0) {
-                            const targetChar = availableTargets[Math.floor(Math.random() * availableTargets.length)];
-                            if (targetChar.currentSleep >= card.value) {
-                                targetChar.currentSleep -= card.value;
-                            } else {
-                                const overflowDamage = card.value - targetChar.currentSleep;
-                                targetChar.currentSleep = 0;
-                                targetChar.sleepGoal += overflowDamage;
-                            }
-                            state.log.unshift(`(BOT) ${botPlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetChar.name}.`);
-                            botPlayer.hand.splice(i, 1);
-                            cardPlayed = true;
+                        const targetChar = targetPlayer.characters.find(c => c.currentSleep > 0 && c.currentSleep !== c.sleepGoal);
+                        if (targetChar) {
+                            executeAction(roomId, { card: card, sourcePlayerId: botPlayer.id, targetPlayerId: targetPlayer.id, targetCharacterName: targetChar.name });
+                            actionTaken = true;
                             break;
                         }
                     }
                 }
             }
         }
-
-        console.log(`Bot ${botPlayer.name} ended its turn.`);
+        
+        console.log(`Bot ${botPlayer.name} finished its action. Ending turn.`);
         endTurn(roomId); 
-    }, 2000);
+    }, 2000); // หน่วงเวลาให้เหมือนบอทกำลังคิด
 };
 
 module.exports = { handleBotTurn };

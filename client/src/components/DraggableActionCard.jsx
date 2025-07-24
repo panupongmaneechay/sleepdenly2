@@ -16,8 +16,8 @@ const actionCardImages = {
 const DraggableActionCard = ({ card, language, onClick }) => {
   const [imageUrl, setImageUrl] = useState('');
   
-  // การ์ดที่ต้อง "คลิก" คือการ์ดที่มี type ขึ้นต้นด้วย 'special_'
   const isClickOnlyCard = card.type.startsWith('special_');
+  const isReactionCard = card.type.startsWith('reaction_');
 
   useEffect(() => {
     const images = actionCardImages[language] || actionCardImages['en'];
@@ -32,7 +32,7 @@ const DraggableActionCard = ({ card, language, onClick }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.CARD,
     item: { card },
-    canDrag: !isClickOnlyCard,
+    canDrag: !isClickOnlyCard && !isReactionCard, // ลากไม่ได้ถ้าเป็น Special หรือ Reaction
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -46,12 +46,12 @@ const DraggableActionCard = ({ card, language, onClick }) => {
 
   return (
     <div
-      ref={isClickOnlyCard ? null : drag}
+      ref={isClickOnlyCard || isReactionCard ? null : drag}
       onClick={handleClick}
-      className="action-card image-action-card"
+      className={`action-card image-action-card ${isReactionCard ? 'reaction-card' : ''}`}
       style={{
         opacity: isDragging ? 0.5 : 1,
-        cursor: isClickOnlyCard ? 'pointer' : 'grab',
+        cursor: isClickOnlyCard ? 'pointer' : (isReactionCard ? 'default' : 'grab'),
       }}
     >
       {imageUrl ? (
