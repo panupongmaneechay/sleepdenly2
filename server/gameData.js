@@ -11,6 +11,9 @@ const characterCards = [
     { name: 'Boy', age: 8, sleepGoal: 10 },
     { name: 'Rich', age: 3, sleepGoal: 13 },
     { name: 'Jerico', age: 36, sleepGoal: 7 },
+    { name: 'Boys', age: 8, sleepGoal: 10 },
+    { name: 'Richer', age: 3, sleepGoal: 13 },
+    { name: 'Mell', age: 36, sleepGoal: 7 },
 ];
 
 const actionCards = [
