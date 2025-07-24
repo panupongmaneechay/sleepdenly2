@@ -63,7 +63,6 @@ function executeAction(roomId, actionData) {
     const sourcePlayer = state.players.find(p => p.id === sourcePlayerId);
     const targetPlayer = state.players.find(p => p.id === targetPlayerId);
 
-    // [แก้ไข] เพิ่มการส่ง Event สำหรับ Visual Effect ที่นี่
     if (['add', 'subtract'].includes(card.type)) {
         io.to(roomId).emit('action_effect', {
             targetPlayerId: targetPlayerId,
@@ -133,7 +132,6 @@ function executeAction(roomId, actionData) {
 }
 
 io.on('connection', (socket) => {
-  // ... (โค้ดส่วนที่เหลือเหมือนเดิมทั้งหมด) ...
   console.log(`User Connected: ${socket.id}`);
 
   socket.on('create_room', (data) => {
@@ -145,7 +143,7 @@ io.on('connection', (socket) => {
 
     rooms[roomId] = {
       id: roomId,
-      players: [{ id: socket.id, name: `Player ${socket.id.substring(0, 5)}` }],
+      players: [{ id: socket.id, name: `Player 1` }], // [แก้ไข] เริ่มต้นเป็น Player 1
       bots: bots || 0, maxPlayers: parseInt(maxPlayers),
     };
     socket.join(roomId);
@@ -158,7 +156,9 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (room && !room.gameState) {
         if (room.players.length + room.bots < room.maxPlayers) {
-            room.players.push({ id: socket.id, name: `Player ${socket.id.substring(0, 5)}` });
+            // [แก้ไข] ตั้งชื่อตามลำดับที่เข้าร่วม
+            const playerNumber = room.players.length + 1;
+            room.players.push({ id: socket.id, name: `Player ${playerNumber}` });
             socket.join(roomId);
             socket.emit('room_joined', room);
             io.to(roomId).emit('room_updated', room);
@@ -188,20 +188,30 @@ io.on('connection', (socket) => {
             playHistory: [],
             turnVersion: 0,
         };
+        
+        // [แก้ไข] รวมผู้เล่นและบอทก่อน แล้วค่อยตั้งชื่อ
+        let playerCounter = 1;
+        let botCounter = 1;
+
         room.players.forEach(player => {
             gameState.players.push({
-                id: player.id, name: player.name,
+                ...player,
+                name: `Player ${playerCounter++}`, // กำหนดชื่อใหม่ตามลำดับ
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });
         });
+
         for(let i = 0; i < room.bots; i++) {
              gameState.players.push({
-                id: `bot-${i+1}`, name: `Bot ${i+1}`, isBot: true,
+                id: `bot-${i+1}`, 
+                name: `Bot ${botCounter++}`, // ตั้งชื่อ Bot ตามลำดับ
+                isBot: true,
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });
         }
+
         room.gameState = gameState;
         io.to(roomId).emit('game_started', room.gameState);
         if (gameState.players[0].isBot) {

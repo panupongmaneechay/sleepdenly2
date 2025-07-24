@@ -11,6 +11,7 @@ import Home from './components/Home';
 import JoinGame from './components/JoinGame';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import GameOverSummary from './components/GameOverSummary';
+import GameLogo from './components/GameLogo';
 
 const socket = io("http://localhost:3001");
 
@@ -155,6 +156,7 @@ function App() {
   
   return (
     <div className={getAppClassName()}>
+      {['home', 'create', 'join', 'waiting'].includes(view) && <GameLogo language={language} />}
       {view !== 'summary' && <LanguageSwitcher currentLang={language} onLangChange={setLanguage} />}
       {renderContent()}
     </div>

@@ -6,6 +6,7 @@
 @import './styles/FloatingText.css';
 @import './styles/Home.css';
 @import './styles/JoinGame.css';
+@import './styles/GameLogo.css';
 
 .App {
   text-align: center;

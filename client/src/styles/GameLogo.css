@@ -1,0 +1,14 @@
+/* client/src/styles/GameLogo.css */
+
+.game-logo-container {
+  position: absolute;
+  top: 8rem;
+  left: 30rem;
+  z-index: 100; /* ให้อยู่เหนือองค์ประกอบอื่น */
+}
+
+.game-logo {
+  width: 400px; /* สามารถปรับขนาดได้ตามความเหมาะสม */
+  height: auto;
+  filter: drop-shadow(2px 4px 6px black); /* เพิ่มเงาให้โลโก้ดูเด่นขึ้น */
+}
