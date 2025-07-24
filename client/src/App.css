@@ -1,6 +1,8 @@
 /* client/src/App.css */
 @import './styles/PlayerSelectionModal.css';
 @import './styles/ConfirmationModal.css';
+@import './styles/GameLog.css';
+
 .App {
   text-align: center;
   font-family: sans-serif;

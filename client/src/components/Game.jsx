@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PlayerArea from './PlayerArea';
 import PlayerSelectionModal from './PlayerSelectionModal';
 import ConfirmationModal from './ConfirmationModal';
+import GameLog from './GameLog'; // 1. Import คอมโพเนนต์ Log
 import endTurnButtonImage from '../assets/button/end.png';
 
 const Game = ({ gameState, myId, socket, language }) => {
@@ -173,6 +174,9 @@ const Game = ({ gameState, myId, socket, language }) => {
                     />
                 </div>
             </div>
+            
+            {/* 2. แสดงผล Log Box */}
+            <GameLog logs={gameState.log} />
         </>
     );
 };

@@ -1,0 +1,64 @@
+/* client/src/styles/GameLog.css */
+
+.game-log-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  width: 600px;
+  height: 220px;
+  background-color: rgba(0, 0, 0, 0.65);
+  border: 1px solid #aaa;
+  border-radius: 12px;
+  color: white;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+
+.game-log-container h4 {
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #666;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.log-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  flex-grow: 1;
+  font-size: 0.9rem;
+}
+
+.log-list li {
+  padding: 4px 2px;
+  border-bottom: 1px solid #444;
+}
+
+.log-list li:last-child {
+  border-bottom: none;
+}
+
+/* Custom scrollbar for webkit browsers */
+.log-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.log-list::-webkit-scrollbar-track {
+  background: #333;
+  border-radius: 4px;
+}
+
+.log-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.log-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
