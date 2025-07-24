@@ -20,14 +20,7 @@ const actionCards = [
     { name: 'no_daytime_naps', description: '+5 hour of sleep', type: 'add', value: 5, rarity: 'common' },
     { name: 'avoid_heavymeals', description: '+4 hour of sleep', type: 'add', value: 4, rarity: 'common' },
     { name: 'work_life_balance', description: '+4 hour of sleep', type: 'add', value: 4, rarity: 'common' },
-    { 
-      name: 'drink_alcohol', 
-      description: '+2 hour of sleep (for 18 years old)', 
-      type: 'add', 
-      value: 2,
-      rarity: 'common',
-      condition: { age: 18 }
-    },
+    { name: 'drink_alcohol', description: '+2 hour of sleep (for 18 years old)', type: 'add', value: 2,rarity: 'common',condition: { age: 18 }},
     //SUBTRACT
     { name: 'depression', description: 'disturbs sleep. -5 hour', type: 'subtract', value: 5, rarity: 'common' },
     
@@ -55,7 +48,7 @@ const createDeckFromRarity = () => {
                 copies = 10;
                 break;
             case 'rare':
-                copies = 5;
+                copies = 15;
                 break;
         }
         for (let i = 0; i < copies; i++) {

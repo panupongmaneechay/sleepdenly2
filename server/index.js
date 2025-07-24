@@ -4,7 +4,6 @@ const express = require('express');
 const http = require('http');
 const { Server } = require("socket.io");
 const cors = require('cors');
-const { v4: uuidv4 } = require('uuid');
 const { characterCards, actionCards, shuffleDeck, createDeckFromRarity } = require('./gameData');
 const { handleBotTurn } = require('./botAI');
 
@@ -95,8 +94,7 @@ function executeAction(roomId, actionData) {
             sourcePlayer.hand.push(...stolenCards);
             break;
         case 'special_swap':
-            const swapCardIndex = sourcePlayer.hand.findIndex(c => c.id === card.id);
-            if(swapCardIndex > -1) sourcePlayer.hand.splice(swapCardIndex, 1);
+            // The swap card is already removed in the executeAction call, so we just swap the remaining cards
             const cardsToGive = [...sourcePlayer.hand];
             const cardsToReceive = [...targetPlayer.hand];
             sourcePlayer.hand = cardsToReceive;
@@ -104,12 +102,16 @@ function executeAction(roomId, actionData) {
             break;
     }
 
-    state.log.unshift(`--- ${sourcePlayer.name}'s ${card.name} action on ${targetPlayer.name} was successful! ---`);
+    if (card.type !== 'special_steal' && card.type !== 'special_swap') {
+        state.log.unshift(`--- ${sourcePlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetCharacterName}! ---`);
+    } else {
+        state.log.unshift(`--- ${sourcePlayer.name} used ${card.name} on ${targetPlayer.name}! ---`);
+    }
     
     state.players.forEach(p => {
         p.sleptCharacters = p.characters.filter(c => c.sleepGoal > 0 && c.currentSleep === c.sleepGoal).length;
         if(p.sleptCharacters >= 3) {
-            io.to(roomId).emit('game_over', { winner: p.name });
+            io.to(roomId).emit('game_over', { winner: p, playHistory: state.playHistory });
             delete rooms[roomId];
             return;
         }
@@ -173,6 +175,7 @@ io.on('connection', (socket) => {
             discardPile: [],
             currentPlayerIndex: 0,
             log: ["Game has started!"],
+            playHistory: [],
             turnVersion: 0,
         };
         room.players.forEach(player => {

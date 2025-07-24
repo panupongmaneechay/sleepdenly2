@@ -4,22 +4,24 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import './App.css';
 import Game from './components/Game';
 import Home from './components/Home';
 import JoinGame from './components/JoinGame';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import GameOverSummary from './components/GameOverSummary';
 
 const socket = io("http://localhost:3001");
 
 function App() {
-  const [view, setView] = useState('home');
+  const [view, setView] = useState('home'); // 'home', 'create', 'join', 'waiting', 'game', 'summary'
   const [room, setRoom] = useState(null);
   const [gameState, setGameState] = useState(null);
-  const [gameOver, setGameOver] = useState(null);
+  const [summaryData, setSummaryData] = useState(null);
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [numBots, setNumBots] = useState(0);
-  const [language, setLanguage] = useState('en'); // State สำหรับภาษา
+  const [language, setLanguage] = useState('en');
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -48,7 +50,7 @@ function App() {
 
     socket.on('update_game_state', (newGameState) => {
       setGameState(currentState => {
-        if (newGameState.turnVersion > (currentState?.turnVersion ?? -1)) {
+        if (!currentState || newGameState.turnVersion > currentState.turnVersion) {
           return newGameState;
         }
         return currentState;
@@ -56,12 +58,12 @@ function App() {
     });
 
     socket.on('game_over', (data) => {
-        setGameOver(data.winner);
+        setSummaryData(data);
+        setView('summary');
     });
 
     socket.on('error_message', (message) => {
         alert(message);
-        setView('home');
     });
 
     return () => {
@@ -95,21 +97,7 @@ function App() {
     socket.emit('join_room', { roomId });
   };
 
-  const handleLanguageChange = (lang) => {
-    setLanguage(lang);
-  };
-
   const renderContent = () => {
-    if (gameOver) {
-      return (
-          <>
-              <h1>Game Over!</h1>
-              <h2>Winner is: {gameOver}</h2>
-              <button className="create-button" onClick={() => window.location.reload()}>Play Again</button>
-          </>
-      );
-    }
-
     switch (view) {
       case 'home':
         return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
@@ -143,11 +131,6 @@ function App() {
         );
       case 'waiting':
         if (!room) return null;
-        const addBot = () => {
-            if (room) {
-              socket.emit('add_bot', { roomId: room.id });
-            }
-          }
         return (
           <>
             <h1>Room ID: {room.id}</h1>
@@ -158,7 +141,7 @@ function App() {
             </ul>
             <h3>Bots: {room.bots}</h3>
             {(room.players[0].id === socket.id && room.players.length + room.bots < room.maxPlayers) && (
-               <button onClick={addBot} className="create-button">Add Bot</button>
+               <button onClick={() => socket.emit('add_bot', { roomId: room.id })} className="create-button">Add Bot</button>
             )}
             <p>Waiting for the game to start...</p>
           </>
@@ -175,14 +158,17 @@ function App() {
             />
           </DndProvider>
         );
+      case 'summary':
+        if (!summaryData) return null;
+        return <GameOverSummary summaryData={summaryData} language={language} />;
       default:
         return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
     }
   };
   
   return (
-    <div className={view === 'game' ? 'App app-game-background' : 'App'}>
-      <LanguageSwitcher currentLang={language} onLangChange={handleLanguageChange} />
+    <div className={view === 'game' || view === 'summary' ? 'App app-game-background' : 'App'}>
+      {view !== 'summary' && <LanguageSwitcher currentLang={language} onLangChange={setLanguage} />}
       {renderContent()}
     </div>
   );

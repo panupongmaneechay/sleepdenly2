@@ -2,6 +2,7 @@
 @import './styles/PlayerSelectionModal.css';
 @import './styles/ConfirmationModal.css';
 @import './styles/GameLog.css';
+@import './styles/GameOverSummary.css';
 
 .App {
   text-align: center;
