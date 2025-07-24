@@ -41,6 +41,17 @@ const actionCards = [
     //SUBTRACT
     { name: 'depression', description: 'disturbs sleep. -5 hour', type: 'subtract', value: 5, rarity: 'common' },
     { name: 'sleeping_pills', description: 'disturbs sleep. -4 hour', type: 'subtract', value: 4, rarity: 'common' },
+    { name: 'stressed', description: 'disturbs sleep. -4 hour', type: 'subtract', value: 4, rarity: 'common' },
+    { name: 'loud_noise', description: 'disturbs sleep. -3 hour', type: 'subtract', value: 3, rarity: 'common' },
+    { name: 'drink_caffeine', description: 'disturbs sleep. -3 hour', type: 'subtract', value: 3, rarity: 'common' },
+    { name: 'smoke', description: 'disturbs sleep. -2 hour(for 18 years old)', type: 'subtract', value: 2,rarity: 'common',condition: { age: 18 }},
+    { name: 'stomachache', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
+    { name: 'play_phone', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
+    { name: 'cold', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
+    { name: 'light_bedroom', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
+    { name: 'heavy_meal', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
+    { name: 'sick', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
+    { name: 'hot_weather', description: 'disturbs sleep. -2 hour', type: 'subtract', value: 2, rarity: 'common' },
     //SPECIAL
     { name: 'thief', description: 'Steal all cards from another player.', type: 'special_steal', rarity: 'rare' },
     { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'rare' }, 
