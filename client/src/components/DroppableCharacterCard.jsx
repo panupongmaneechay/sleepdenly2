@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { ItemTypes } from './DraggableActionCard';
 import sleptImage from '../assets/status/slept.png';
+import FloatingText from './FloatingText'; // [แก้ไข] เพิ่ม import ที่ขาดหายไป
 
 const characterImages = {
   en: import.meta.glob('../assets/character_en/*.png', { eager: true }),
@@ -12,7 +13,7 @@ const characterImages = {
 };
 
 
-const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) => {
+const DroppableCharacterCard = ({ character, playerId, onCardDrop, language, floatingTexts }) => {
   const isSleeping = character.sleepGoal > 0 && character.currentSleep === character.sleepGoal;
   const [imageUrl, setImageUrl] = useState('');
 
@@ -29,14 +30,12 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) =
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
     canDrop: (item) => {
-      if (isSleeping) return false; // ถ้าหลับอยู่แล้ว วางไม่ได้
-
-      // ตรวจสอบเงื่อนไขการ์ด
+      if (isSleeping) return false;
       const card = item.card;
       if (card.condition && card.condition.age) {
         return character.age >= card.condition.age;
       }
-      return true; // ถ้าไม่มีเงื่อนไข ก็วางได้เสมอ
+      return true;
     },
     drop: (item) => onCardDrop(item.card, playerId, character.name),
     collect: (monitor) => ({
@@ -73,6 +72,22 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) =
             </div>
           </>
         )}
+
+        {floatingTexts && floatingTexts.map(text => (
+            <FloatingText 
+                key={text.id} 
+                text={`${text.type === 'add' ? '+' : '-'}${text.value}`}
+                type={text.type}
+            />
+        ))}
+
+        <div className="character-info-overlay-top">
+          {/* Empty */}
+        </div>
+
+        <div className="character-info-overlay-bottom">
+            {/* Empty */}
+        </div>
       </div>
 
       {!isSleeping && (

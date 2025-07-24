@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import PlayerArea from './PlayerArea';
 import PlayerSelectionModal from './PlayerSelectionModal';
 import ConfirmationModal from './ConfirmationModal';
-import GameLog from './GameLog'; // 1. Import คอมโพเนนต์ Log
+import GameLog from './GameLog';
 import endTurnButtonImage from '../assets/button/end.png';
 
 const Game = ({ gameState, myId, socket, language }) => {
@@ -12,6 +12,7 @@ const Game = ({ gameState, myId, socket, language }) => {
     const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
     const [specialCard, setSpecialCard] = useState(null);
     const [confirmation, setConfirmation] = useState(null);
+    const [floatingTexts, setFloatingTexts] = useState([]);
 
     useEffect(() => {
         socket.on('action_request', (data) => {
@@ -29,9 +30,22 @@ const Game = ({ gameState, myId, socket, language }) => {
             });
         });
 
+        socket.on('action_effect', (data) => {
+            const newText = {
+                id: Date.now() + Math.random(), // สร้าง ID ที่ไม่ซ้ำกัน
+                ...data
+            };
+            setFloatingTexts(currentTexts => [...currentTexts, newText]);
+
+            setTimeout(() => {
+                setFloatingTexts(currentTexts => currentTexts.filter(text => text.id !== newText.id));
+            }, 1500);
+        });
+
         return () => {
             socket.off('action_request');
             socket.off('counter_request');
+            socket.off('action_effect');
         };
     }, [socket]);
 
@@ -136,13 +150,13 @@ const Game = ({ gameState, myId, socket, language }) => {
             <div className={layoutClass}>
                 {topPlayer && (
                     <div className="player-position-top">
-                        <PlayerArea player={topPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
+                        <PlayerArea player={topPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} floatingTexts={floatingTexts.filter(t => t.targetPlayerId === topPlayer.id)} />
                     </div>
                 )}
 
                 {leftPlayer && (
                     <div className="player-position-left">
-                        <PlayerArea player={leftPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
+                        <PlayerArea player={leftPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} floatingTexts={floatingTexts.filter(t => t.targetPlayerId === leftPlayer.id)} />
                     </div>
                 )}
                 
@@ -159,7 +173,7 @@ const Game = ({ gameState, myId, socket, language }) => {
 
                 {rightPlayer && (
                     <div className="player-position-right">
-                        <PlayerArea player={rightPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
+                        <PlayerArea player={rightPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} floatingTexts={floatingTexts.filter(t => t.targetPlayerId === rightPlayer.id)} />
                     </div>
                 )}
 
@@ -171,11 +185,11 @@ const Game = ({ gameState, myId, socket, language }) => {
                         isMyTurn={isMyTurn} 
                         language={language}
                         onSpecialCardClick={handleSpecialCardClick} 
+                        floatingTexts={floatingTexts.filter(t => t.targetPlayerId === me.id)}
                     />
                 </div>
             </div>
             
-            {/* 2. แสดงผล Log Box */}
             <GameLog logs={gameState.log} />
         </>
     );

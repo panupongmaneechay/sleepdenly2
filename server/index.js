@@ -63,6 +63,16 @@ function executeAction(roomId, actionData) {
     const sourcePlayer = state.players.find(p => p.id === sourcePlayerId);
     const targetPlayer = state.players.find(p => p.id === targetPlayerId);
 
+    // [แก้ไข] เพิ่มการส่ง Event สำหรับ Visual Effect ที่นี่
+    if (['add', 'subtract'].includes(card.type)) {
+        io.to(roomId).emit('action_effect', {
+            targetPlayerId: targetPlayerId,
+            targetCharacterName: targetCharacterName,
+            value: card.value,
+            type: card.type
+        });
+    }
+
     const cardIndex = sourcePlayer.hand.findIndex(c => c.id === card.id);
     if (cardIndex > -1) {
         const playedCard = sourcePlayer.hand.splice(cardIndex, 1)[0];
@@ -94,7 +104,6 @@ function executeAction(roomId, actionData) {
             sourcePlayer.hand.push(...stolenCards);
             break;
         case 'special_swap':
-            // The swap card is already removed in the executeAction call, so we just swap the remaining cards
             const cardsToGive = [...sourcePlayer.hand];
             const cardsToReceive = [...targetPlayer.hand];
             sourcePlayer.hand = cardsToReceive;
@@ -102,11 +111,11 @@ function executeAction(roomId, actionData) {
             break;
     }
 
-    if (card.type !== 'special_steal' && card.type !== 'special_swap') {
-        state.log.unshift(`--- ${sourcePlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetCharacterName}! ---`);
-    } else {
-        state.log.unshift(`--- ${sourcePlayer.name} used ${card.name} on ${targetPlayer.name}! ---`);
+    if (['add', 'subtract', 'instant_sleep'].includes(card.type)) {
+        state.playHistory.push(actionData);
     }
+
+    state.log.unshift(`--- ${sourcePlayer.name} used ${card.name} on ${targetPlayer.name}! ---`);
     
     state.players.forEach(p => {
         p.sleptCharacters = p.characters.filter(c => c.sleepGoal > 0 && c.currentSleep === c.sleepGoal).length;
@@ -124,6 +133,7 @@ function executeAction(roomId, actionData) {
 }
 
 io.on('connection', (socket) => {
+  // ... (โค้ดส่วนที่เหลือเหมือนเดิมทั้งหมด) ...
   console.log(`User Connected: ${socket.id}`);
 
   socket.on('create_room', (data) => {

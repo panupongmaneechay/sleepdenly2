@@ -3,7 +3,7 @@
 @import './styles/ConfirmationModal.css';
 @import './styles/GameLog.css';
 @import './styles/GameOverSummary.css';
-
+@import './styles/FloatingText.css';
 .App {
   text-align: center;
   font-family: sans-serif;
