@@ -1,7 +1,7 @@
 # server/Dockerfile
 
 # ใช้ Node.js version 18 เป็น base image
-FROM node:18-alpine
+FROM node:22-alpine
 
 # กำหนด working directory ภายใน container
 WORKDIR /app
