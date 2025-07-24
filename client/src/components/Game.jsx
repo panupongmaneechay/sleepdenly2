@@ -2,10 +2,9 @@
 
 import React from 'react';
 import PlayerArea from './PlayerArea';
-import endTurnButtonImage from '../assets/button/end.png'; // <-- 1. Import รูปภาพเข้ามา
+import endTurnButtonImage from '../assets/button/end.png';
 
-const Game = ({ gameState, myId, socket }) => {
-    // ... (ส่วน Logic ของ handleCardDrop และการจัดตำแหน่งผู้เล่นเหมือนเดิม) ...
+const Game = ({ gameState, myId, socket, language }) => {
     const me = gameState.players.find(p => p.id === myId);
     const otherPlayers = gameState.players.filter(p => p.id !== myId);
     const currentPlayer = gameState.players[gameState.currentPlayerIndex];
@@ -31,6 +30,7 @@ const Game = ({ gameState, myId, socket }) => {
         }
     };
 
+    // Logic การจัดตำแหน่งผู้เล่น
     let topPlayer = null;
     let leftPlayer = null;
     let rightPlayer = null;
@@ -52,32 +52,35 @@ const Game = ({ gameState, myId, socket }) => {
         <div className={layoutClass}>
             {topPlayer && (
                 <div className="player-position-top">
-                    <PlayerArea player={topPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} />
+                    <PlayerArea player={topPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
                 </div>
             )}
+
             {leftPlayer && (
                 <div className="player-position-left">
-                    <PlayerArea player={leftPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} />
+                    <PlayerArea player={leftPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
                 </div>
             )}
+            
             <div className="center-controls">
                 <div className="turn-indicator">
                     <h2>Turn: {currentPlayer.name}</h2>
                     {isMyTurn && (
-                        // <-- 2. เปลี่ยน <button> เดิมเป็นปุ่มรูปภาพ
                         <button className="end-turn-image-button" onClick={handleEndTurn}>
                             <img src={endTurnButtonImage} alt="End Turn" />
                         </button>
                     )}
                 </div>
             </div>
+
             {rightPlayer && (
                 <div className="player-position-right">
-                    <PlayerArea player={rightPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} />
+                    <PlayerArea player={rightPlayer} isMyArea={false} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
                 </div>
             )}
+
             <div className="player-position-bottom">
-                <PlayerArea player={me} isMyArea={true} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} />
+                <PlayerArea player={me} isMyArea={true} onCardDrop={handleCardDrop} isMyTurn={isMyTurn} language={language} />
             </div>
         </div>
     );

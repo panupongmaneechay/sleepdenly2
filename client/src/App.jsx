@@ -8,6 +8,7 @@ import './App.css';
 import Game from './components/Game';
 import Home from './components/Home';
 import JoinGame from './components/JoinGame';
+import LanguageSwitcher from './components/LanguageSwitcher';
 
 const socket = io("http://localhost:3001");
 
@@ -18,6 +19,7 @@ function App() {
   const [gameOver, setGameOver] = useState(null);
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [numBots, setNumBots] = useState(0);
+  const [language, setLanguage] = useState('en'); // State สำหรับภาษา
 
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -47,10 +49,8 @@ function App() {
     socket.on('update_game_state', (newGameState) => {
       setGameState(currentState => {
         if (newGameState.turnVersion > (currentState?.turnVersion ?? -1)) {
-          console.log(`Game state updated from v${currentState?.turnVersion ?? -1} to v${newGameState.turnVersion}`);
           return newGameState;
         }
-        console.log(`Ignored stale state update (v${newGameState.turnVersion})`);
         return currentState;
       });
     });
@@ -93,6 +93,10 @@ function App() {
 
   const handleJoinRoom = (roomId) => {
     socket.emit('join_room', { roomId });
+  };
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
   };
 
   const renderContent = () => {
@@ -163,7 +167,12 @@ function App() {
         if (!gameState) return null;
         return (
           <DndProvider backend={HTML5Backend}>
-            <Game gameState={gameState} myId={socket.id} socket={socket} />
+            <Game 
+                gameState={gameState} 
+                myId={socket.id} 
+                socket={socket} 
+                language={language} 
+            />
           </DndProvider>
         );
       default:
@@ -171,9 +180,9 @@ function App() {
     }
   };
   
-  // **[แก้ไข]** สร้าง Wrapper div ที่ครอบทุกอย่าง และใส่ className แบบมีเงื่อนไข
   return (
     <div className={view === 'game' ? 'App app-game-background' : 'App'}>
+      <LanguageSwitcher currentLang={language} onLangChange={handleLanguageChange} />
       {renderContent()}
     </div>
   );

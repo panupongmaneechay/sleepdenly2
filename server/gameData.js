@@ -1,20 +1,19 @@
 // server/gameData.js
 
 const characterCards = [
-    { name: 'Brian', age: 13, sleepGoal: 9 },
-    { name: 'Lee', age: 71, sleepGoal: 7 },
-    { name: 'Jeejee', age: 17, sleepGoal: 9 },
-    { name: 'Violet', age: 50, sleepGoal: 7 },
-    { name: 'Joe', age: 55, sleepGoal: 7 },
-    { name: 'Nena', age: 1, sleepGoal: 14 },
-    { name: 'Gel', age: 4, sleepGoal: 12 },
-    { name: 'Boy', age: 8, sleepGoal: 10 },
-    { name: 'Rich', age: 3, sleepGoal: 13 },
-    { name: 'Jerico', age: 36, sleepGoal: 7 },
-    { name: 'Boys', age: 8, sleepGoal: 10 },
-    { name: 'Richer', age: 3, sleepGoal: 13 },
-    { name: 'Mell', age: 36, sleepGoal: 7 },
-];
+    { name: 'Oraphan', age: 0, sleepGoal: 12 },
+    { name: 'Don', age: 1, sleepGoal: 12 },
+    { name: 'Miguel', age: 1, sleepGoal: 11 },
+    { name: 'Anthony', age: 3, sleepGoal: 10 },
+    { name: 'Hana', age: 4, sleepGoal: 10 },
+    { name: 'Richie', age: 4, sleepGoal: 12 },
+    { name: 'Bay', age: 6, sleepGoal: 9 },
+    { name: 'Martin', age: 8, sleepGoal: 9 },
+    { name: 'Miwa', age: 10, sleepGoal: 9 },
+    { name: 'RidChan', age: 11, sleepGoal: 9 },
+    { name: 'Austin', age: 14, sleepGoal: 10 },
+    { name: 'Hero', age: 15, sleepGoal: 8 }
+    ];
 
 const actionCards = [
     // Common Cards

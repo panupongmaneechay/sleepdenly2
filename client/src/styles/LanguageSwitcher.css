@@ -1,0 +1,35 @@
+/* client/src/styles/LanguageSwitcher.css */
+
+.language-switcher {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem;
+  border-radius: 12px;
+  z-index: 100; /* ทำให้อยู่เหนือสุด */
+}
+
+.lang-button {
+  padding: 5px 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-color: #eee;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.lang-button:hover {
+  background-color: #ddd;
+}
+
+.lang-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #0056b3;
+}
