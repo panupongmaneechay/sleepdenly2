@@ -42,7 +42,11 @@ const endTurn = (roomId) => {
     state.currentPlayerIndex = (state.currentPlayerIndex + 1) % room.maxPlayers;
     const nextPlayer = state.players[state.currentPlayerIndex];
     state.log.unshift(`--- ${currentPlayer.name}'s turn ended. Now it's ${nextPlayer.name}'s turn. ---`);
+
+    // **[แก้ไข]** เพิ่มเวอร์ชันก่อนส่ง
+    state.turnVersion++;
     io.to(roomId).emit('update_game_state', state);
+
     if (nextPlayer.isBot) {
         console.log(`Next turn is for Bot: ${nextPlayer.name}. Handling...`);
         handleBotTurn(roomId, rooms, endTurn);
@@ -66,6 +70,29 @@ io.on('connection', (socket) => {
     socket.emit('room_created', rooms[roomId]);
     checkAndStartGame(roomId);
   });
+
+  socket.on('join_room', (data) => {
+    const { roomId } = data;
+    const room = rooms[roomId];
+
+    if (room && !room.gameState) {
+        if (room.players.length + room.bots < room.maxPlayers) {
+            room.players.push({ id: socket.id, name: `Player ${socket.id.substring(0, 5)}` });
+            socket.join(roomId);
+            socket.emit('room_joined', room);
+            io.to(roomId).emit('room_updated', room);
+            checkAndStartGame(roomId);
+        } else {
+            socket.emit('error_message', 'Room is full.');
+        }
+    } else if (room && room.gameState) {
+        socket.emit('error_message', 'Game has already started in this room.');
+    } else {
+        socket.emit('error_message', 'Room not found.');
+    }
+  });
+
+
   socket.on('add_bot', (data) => {
       const { roomId } = data;
       if (rooms[roomId]) {
@@ -77,6 +104,7 @@ io.on('connection', (socket) => {
           }
       }
   });
+
   const checkAndStartGame = (roomId) => {
     const room = rooms[roomId];
     if (!room) return;
@@ -86,9 +114,13 @@ io.on('connection', (socket) => {
         const initialDeck = createDeckFromRarity();
         const shuffledActions = shuffleDeck(initialDeck);
         const gameState = {
-            roomId: roomId, players: [], deck: shuffledActions,
+            roomId: roomId,
+            players: [],
+            deck: shuffledActions,
             discardPile: [],
-            currentPlayerIndex: 0, log: ["Game has started!"],
+            currentPlayerIndex: 0,
+            log: ["Game has started!"],
+            turnVersion: 0, // **[แก้ไข]** เพิ่ม turnVersion เริ่มต้น
         };
         room.players.forEach(player => {
             gameState.players.push({
@@ -111,6 +143,7 @@ io.on('connection', (socket) => {
         }
     }
   };
+
   socket.on('play_card', (data) => {
     const { roomId, card, targetPlayerId, targetCharacterName } = data;
     const room = rooms[roomId];
@@ -118,10 +151,10 @@ io.on('connection', (socket) => {
     const state = room.gameState;
     const currentPlayer = state.players[state.currentPlayerIndex];
     if (currentPlayer.id !== socket.id) return socket.emit('error_message', "It's not your turn!");
-    
+
     const targetPlayer = state.players.find(p => p.id === targetPlayerId);
     const targetCharacter = targetPlayer.characters.find(c => c.name === targetCharacterName);
-    
+
     if (targetCharacter.currentSleep === targetCharacter.sleepGoal && targetCharacter.sleepGoal > 0) {
         return socket.emit('error_message', `${targetCharacter.name} is already sleeping perfectly and cannot be targeted.`);
     }
@@ -137,7 +170,6 @@ io.on('connection', (socket) => {
             targetCharacter.sleepGoal += overflowDamage;
         }
     } else if (card.type === 'instant_sleep') {
-        // **Logic สำหรับการ์ดใหม่**
         targetCharacter.currentSleep = targetCharacter.sleepGoal;
     }
     state.log.unshift(`${currentPlayer.name} used ${card.name} on ${targetPlayer.name}'s ${targetCharacter.name}.`);
@@ -147,7 +179,7 @@ io.on('connection', (socket) => {
         const playedCard = currentPlayer.hand.splice(cardIndex, 1)[0];
         state.discardPile.push(playedCard);
     }
-    
+
     const newSleptCount = targetPlayer.characters.filter(c => c.sleepGoal > 0 && c.currentSleep === c.sleepGoal).length;
     targetPlayer.sleptCharacters = newSleptCount;
 
@@ -160,9 +192,12 @@ io.on('connection', (socket) => {
         state.log.unshift(`${currentPlayer.name} has no cards left, ending turn automatically.`);
         endTurn(roomId);
     } else {
+        // **[แก้ไข]** เพิ่มเวอร์ชันก่อนส่ง
+        state.turnVersion++;
         io.to(roomId).emit('update_game_state', state);
     }
   });
+
   socket.on('end_turn', ({ roomId }) => {
     const room = rooms[roomId];
     if (!room || !room.gameState) return;
@@ -171,10 +206,12 @@ io.on('connection', (socket) => {
         endTurn(roomId);
     }
   });
+
   socket.on('disconnect', () => {
     console.log(`User Disconnected: ${socket.id}`);
   });
 });
+
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`SERVER IS RUNNING ON PORT ${PORT}`);

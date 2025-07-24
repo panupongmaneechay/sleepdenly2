@@ -6,10 +6,13 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import './App.css';
 import Game from './components/Game';
+import Home from './components/Home';
+import JoinGame from './components/JoinGame';
 
 const socket = io("http://localhost:3001");
 
 function App() {
+  const [view, setView] = useState('home'); // 'home', 'create', 'join', 'game', 'waiting'
   const [room, setRoom] = useState(null);
   const [gameState, setGameState] = useState(null);
   const [gameOver, setGameOver] = useState(null);
@@ -20,8 +23,15 @@ function App() {
     socket.on('room_created', (roomData) => {
       console.log('Room created successfully:', roomData);
       setRoom(roomData);
+      setView('waiting');
     });
-    
+
+    socket.on('room_joined', (roomData) => {
+        console.log('Joined room successfully:', roomData);
+        setRoom(roomData);
+        setView('waiting');
+    });
+
     socket.on('room_updated', (roomData) => {
       console.log('Room has been updated:', roomData);
       setRoom(roomData);
@@ -31,23 +41,33 @@ function App() {
       console.log('Game Started!', initialGameState);
       setGameState(initialGameState);
       setRoom(null);
+      setView('game');
     });
 
     socket.on('update_game_state', (newGameState) => {
-      console.log("Game state updated");
-      setGameState(newGameState);
+      // **[แก้ไข]** เพิ่มการตรวจสอบเวอร์ชัน
+      setGameState(currentState => {
+        if (newGameState.turnVersion > (currentState?.turnVersion ?? -1)) {
+          console.log(`Game state updated from v${currentState?.turnVersion ?? -1} to v${newGameState.turnVersion}`);
+          return newGameState;
+        }
+        console.log(`Ignored stale state update (v${newGameState.turnVersion})`);
+        return currentState;
+      });
     });
 
     socket.on('game_over', (data) => {
         setGameOver(data.winner);
     });
-    
+
     socket.on('error_message', (message) => {
         alert(message);
+        setView('home');
     });
 
     return () => {
       socket.off('room_created');
+      socket.off('room_joined');
       socket.off('room_updated');
       socket.off('game_started');
       socket.off('update_game_state');
@@ -55,7 +75,7 @@ function App() {
       socket.off('error_message');
     }
   }, []);
-  
+
   const handleMaxPlayersChange = (e) => {
     const newSize = parseInt(e.target.value);
     setMaxPlayers(newSize);
@@ -71,88 +91,96 @@ function App() {
   const handleCreateRoom = () => {
     socket.emit('create_room', { maxPlayers: maxPlayers, bots: numBots });
   };
-  
-  // --- ส่วนแสดงผล ---
 
-  if (gameOver) {
-    return (
-        <div className="App">
-            <h1>Game Over!</h1>
-            <h2>Winner is: {gameOver}</h2>
-            <button className="create-button" onClick={() => window.location.reload()}>Play Again</button>
-        </div>
-    );
-  }
+  const handleJoinRoom = (roomId) => {
+    socket.emit('join_room', { roomId });
+  };
 
-  if (gameState) {
-    return (
-        <DndProvider backend={HTML5Backend}>
-            <div className="App">
-                <Game 
-                    gameState={gameState} 
-                    myId={socket.id} 
-                    socket={socket}
-                />
+  const renderView = () => {
+    if (gameOver) {
+      return (
+          <div className="App">
+              <h1>Game Over!</h1>
+              <h2>Winner is: {gameOver}</h2>
+              <button className="create-button" onClick={() => window.location.reload()}>Play Again</button>
+          </div>
+      );
+    }
+
+    switch (view) {
+      case 'home':
+        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
+      case 'join':
+        return <JoinGame onJoin={handleJoinRoom} onBack={() => setView('home')} />;
+      case 'create':
+        return (
+          <div className="App">
+            <div className="create-room-form">
+              <h2>Create a Room</h2>
+              <div className="form-group">
+                <label htmlFor="room-size">Room Size (Total Players): </label>
+                <select id="room-size" value={maxPlayers} onChange={handleMaxPlayersChange}>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="bot-count">Number of Bots: </label>
+                <select id="bot-count" value={numBots} onChange={handleNumBotsChange}>
+                  {Array.from({ length: maxPlayers }, (_, i) => (
+                    <option key={i} value={i}>{i}</option>
+                  ))}
+                </select>
+              </div>
+              <button onClick={handleCreateRoom} className="create-button">
+                Create Room
+              </button>
+               <button onClick={() => setView('home')} className="back-button" style={{marginLeft: '10px', backgroundColor: '#6c757d'}}>Back</button>
             </div>
-        </DndProvider>
-    )
-  }
+          </div>
+        );
+      case 'waiting':
+        if (!room) return null;
+        const addBot = () => {
+            if (room) {
+              socket.emit('add_bot', { roomId: room.id });
+            }
+          }
+        return (
+          <div className="App">
+            <h1>Room ID: {room.id}</h1>
+            <h2>Waiting for players... ({room.players.length + room.bots}/{room.maxPlayers})</h2>
+            <h3>Players:</h3>
+            <ul>
+              {room.players.map(p => <li key={p.id}>{p.name} ({(p.id === socket.id) ? 'You' : ''})</li>)}
+            </ul>
+            <h3>Bots: {room.bots}</h3>
+            {(room.players[0].id === socket.id && room.players.length + room.bots < room.maxPlayers) && (
+               <button onClick={addBot} className="create-button">Add Bot</button>
+            )}
+            <p>Waiting for the game to start...</p>
+          </div>
+        );
+      case 'game':
+        if (!gameState) return null; // เพิ่มการตรวจสอบ gameState ก่อน render
+        return (
+          <DndProvider backend={HTML5Backend}>
+              <div className="App">
+                  <Game
+                      gameState={gameState}
+                      myId={socket.id}
+                      socket={socket}
+                  />
+              </div>
+          </DndProvider>
+        );
+      default:
+        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
+    }
+  };
 
-  if (room) {
-    const addBot = () => {
-        if (room) {
-          socket.emit('add_bot', { roomId: room.id });
-        }
-      }
-
-    return (
-      <div className="App">
-        <h1>Room ID: {room.id}</h1>
-        <h2>Waiting for players... ({room.players.length + room.bots}/{room.maxPlayers})</h2>
-        <h3>Players:</h3>
-        <ul>
-          {room.players.map(p => <li key={p.id}>{p.name}</li>)}
-        </ul>
-        <h3>Bots: {room.bots}</h3>
-        
-        {(room.players.length + room.bots < room.maxPlayers) && (
-           <button onClick={addBot} className="create-button">Add Bot</button>
-        )}
-        <p>Waiting for the game to start...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="App">
-      <h1>Welcome to Sleepy Card Game!</h1>
-      <div className="create-room-form">
-        <h2>Create a Room</h2>
-        
-        <div className="form-group">
-          <label htmlFor="room-size">Room Size (Total Players): </label>
-          <select id="room-size" value={maxPlayers} onChange={handleMaxPlayersChange}>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="bot-count">Number of Bots: </label>
-          <select id="bot-count" value={numBots} onChange={handleNumBotsChange}>
-            {Array.from({ length: maxPlayers }, (_, i) => (
-              <option key={i} value={i}>{i}</option>
-            ))}
-          </select>
-        </div>
-        
-        <button onClick={handleCreateRoom} className="create-button">
-          Create Room
-        </button>
-      </div>
-    </div>
-  );
+  return renderView();
 }
 
 export default App;

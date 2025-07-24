@@ -9,15 +9,15 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop }) => {
 
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
-    // **ส่วนที่แก้ไข: ทำให้ Logic ง่ายและครอบคลุมทุกประเภทการ์ด**
-    // ตราบใดที่ตัวละครยังไม่หลับ (isSleeping เป็น false) ก็จะสามารถรับการ์ดได้เสมอ
     canDrop: () => !isSleeping,
     drop: (item) => onCardDrop(item.card, playerId, character.name),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
     }),
-  }));
+  }), 
+  // **[แก้ไข]** เพิ่ม dependency array เพื่อให้ hook อัปเดตตัวเองเมื่อ props เปลี่ยน
+  [character, playerId, onCardDrop, isSleeping]);
 
   const getBackgroundColor = () => {
     if (isOver && canDrop) return '#c8e6c9';
