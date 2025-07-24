@@ -1,5 +1,18 @@
 /* client/src/styles/Home.css */
 
+.home-container {
+    /* background-color: rgba(0, 0, 0, 0.5); เพิ่มพื้นหลังสีดำโปร่งแสง */
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    margin-top: 70vh; /* เพิ่มระยะห่างจากด้านบน */
+    margin-bottom: auto; /* ดัน element ขึ้นไปข้างบน */
+}
+
+.home-title {
+    color: white;
+    text-shadow: 2px 2px 4px #000000;
+}
+
 .home-menu {
   display: flex;
   flex-direction: column;
@@ -17,8 +30,10 @@
   border: none;
   border-radius: 8px;
   width: 200px;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 .menu-button:hover {
   background-color: #0056b3;
+  transform: scale(1.05);
 }

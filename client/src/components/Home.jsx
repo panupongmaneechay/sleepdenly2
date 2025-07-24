@@ -1,12 +1,12 @@
 // client/src/components/Home.jsx
 
 import React from 'react';
-import '../styles/Home.css'; // <-- เพิ่มบรรทัดนี้
+import '../styles/Home.css';
 
 const Home = ({ onStartGame, onJoinGame }) => {
   return (
-    <div className="App">
-      <h1>Welcome to Sleepy Card Game!</h1>
+    <div className="home-container">
+      <h1 className="home-title">Sleepy Game</h1>
       <div className="home-menu">
         <button onClick={onStartGame} className="menu-button">
           Start Game
@@ -15,7 +15,6 @@ const Home = ({ onStartGame, onJoinGame }) => {
           Join Game
         </button>
       </div>
-      {/* <style jsx>...</style> ถูกลบออกไปแล้ว */}
     </div>
   );
 };
