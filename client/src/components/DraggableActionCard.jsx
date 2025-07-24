@@ -16,8 +16,8 @@ const actionCardImages = {
 const DraggableActionCard = ({ card, language, onClick }) => {
   const [imageUrl, setImageUrl] = useState('');
   
-  // [แก้ไข] ตรวจสอบเฉพาะการ์ดที่ต้อง "คลิกเท่านั้น" เช่น Thief
-  const isClickOnlyCard = card.type === 'special_steal';
+  // การ์ดที่ต้อง "คลิก" คือการ์ดที่มี type ขึ้นต้นด้วย 'special_'
+  const isClickOnlyCard = card.type.startsWith('special_');
 
   useEffect(() => {
     const images = actionCardImages[language] || actionCardImages['en'];
@@ -32,7 +32,6 @@ const DraggableActionCard = ({ card, language, onClick }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.CARD,
     item: { card },
-    // [แก้ไข] อนุญาตให้ลากการ์ดได้ทุกใบ ยกเว้นการ์ดที่ต้องคลิกเท่านั้น
     canDrag: !isClickOnlyCard,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -40,7 +39,6 @@ const DraggableActionCard = ({ card, language, onClick }) => {
   }));
 
   const handleClick = () => {
-    // ถ้าเป็นการ์ดที่ต้องคลิกและมีฟังก์ชัน onClick ส่งมา ก็ให้ทำงาน
     if (isClickOnlyCard && onClick) {
       onClick(card);
     }
@@ -48,12 +46,12 @@ const DraggableActionCard = ({ card, language, onClick }) => {
 
   return (
     <div
-      ref={isClickOnlyCard ? null : drag} // [แก้ไข] ใช้ ref สำหรับลากกับการ์ดทุกใบที่ไม่ใช่แบบคลิกเท่านั้น
+      ref={isClickOnlyCard ? null : drag}
       onClick={handleClick}
       className="action-card image-action-card"
       style={{
         opacity: isDragging ? 0.5 : 1,
-        cursor: isClickOnlyCard ? 'pointer' : 'grab', // [แก้ไข] เปลี่ยน cursor ตามประเภท
+        cursor: isClickOnlyCard ? 'pointer' : 'grab',
       }}
     >
       {imageUrl ? (

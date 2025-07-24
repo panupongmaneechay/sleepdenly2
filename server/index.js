@@ -25,7 +25,6 @@ const endTurn = (roomId) => {
     const state = room.gameState;
     const currentPlayer = state.players[state.currentPlayerIndex];
     
-    // เงื่อนไขการจั่วการ์ด: จั่วต่อเมื่อการ์ดในมือน้อยกว่า 5 ใบ
     if (currentPlayer.hand.length < 5) {
         let cardsToDraw = 5 - currentPlayer.hand.length;
         for(let i = 0; i < cardsToDraw; i++) {
@@ -227,6 +226,38 @@ io.on('connection', (socket) => {
     }
     
     state.log.unshift(`--- ${currentPlayer.name} used Thief and stole ${stolenCards.length} cards from ${targetPlayer.name}! ---`);
+    
+    state.turnVersion++;
+    io.to(roomId).emit('update_game_state', state);
+  });
+
+  socket.on('swap_cards', (data) => {
+    const { roomId, card, targetPlayerId } = data;
+    const room = rooms[roomId];
+    if (!room || !room.gameState) return;
+    const state = room.gameState;
+    const currentPlayer = state.players.find(p => p.id === socket.id);
+    const targetPlayer = state.players.find(p => p.id === targetPlayerId);
+
+    if (!currentPlayer || !targetPlayer) return;
+
+    if (currentPlayer.hand.length <= 1) {
+        return socket.emit('error_message', 'You must have at least one other card to swap.');
+    }
+
+    const swapCardIndex = currentPlayer.hand.findIndex(c => c.id === card.id);
+    if (swapCardIndex === -1) return;
+
+    const swapCard = currentPlayer.hand.splice(swapCardIndex, 1)[0];
+    const cardsToGive = [...currentPlayer.hand];
+    const cardsToReceive = [...targetPlayer.hand];
+
+    currentPlayer.hand = cardsToReceive;
+    targetPlayer.hand = cardsToGive;
+
+    state.discardPile.push(swapCard);
+    
+    state.log.unshift(`--- ${currentPlayer.name} used Swap Card and swapped hands with ${targetPlayer.name}! ---`);
     
     state.turnVersion++;
     io.to(roomId).emit('update_game_state', state);

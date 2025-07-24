@@ -3,11 +3,11 @@
 import React from 'react';
 import '../styles/PlayerSelectionModal.css';
 
-const PlayerSelectionModal = ({ players, onSelectPlayer, onCancel }) => {
+const PlayerSelectionModal = ({ players, onSelectPlayer, onCancel, title }) => {
   return (
     <div className="modal-backdrop">
       <div className="modal-content">
-        <h2>Who do you want to steal from?</h2>
+        <h2>{title || "Select a Player"}</h2>
         <div className="player-list">
           {players.map(player => (
             <button 

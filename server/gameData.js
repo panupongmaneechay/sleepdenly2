@@ -33,7 +33,8 @@ const actionCards = [
     
     //SPECIAL
     { name: 'thief', description: 'Steal all cards from another player.', type: 'special_steal', rarity: 'rare' },
-    { name: 'lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
+    { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'rare' }, // <-- เพิ่มการ์ดใหม่
+    { name: 'Lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
 ];
 
 const shuffleDeck = (deck) => {

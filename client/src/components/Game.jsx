@@ -7,7 +7,8 @@ import endTurnButtonImage from '../assets/button/end.png';
 
 const Game = ({ gameState, myId, socket, language }) => {
     const [isStealModalOpen, setIsStealModalOpen] = useState(false);
-    const [thiefCard, setThiefCard] = useState(null);
+    const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
+    const [specialCard, setSpecialCard] = useState(null);
 
     const me = gameState.players.find(p => p.id === myId);
     const otherPlayers = gameState.players.filter(p => p.id !== myId);
@@ -39,20 +40,39 @@ const Game = ({ gameState, myId, socket, language }) => {
             alert("It's not your turn!");
             return;
         }
+        setSpecialCard(card);
         if (card.type === 'special_steal') {
-            setThiefCard(card);
             setIsStealModalOpen(true);
+        } else if (card.type === 'special_swap') {
+            if (me.hand.length <= 1) {
+                alert("You need at least one other card to swap.");
+                return;
+            }
+            setIsSwapModalOpen(true);
         }
     };
 
-    const handleSelectPlayerToSteal = (targetPlayerId) => {
-        socket.emit('steal_cards', {
-            roomId: gameState.roomId,
-            card: thiefCard,
-            targetPlayerId: targetPlayerId,
-        });
+    const handleSelectPlayer = (targetPlayerId) => {
+        if (specialCard.type === 'special_steal') {
+            socket.emit('steal_cards', {
+                roomId: gameState.roomId,
+                card: specialCard,
+                targetPlayerId: targetPlayerId,
+            });
+        } else if (specialCard.type === 'special_swap') {
+            socket.emit('swap_cards', {
+                roomId: gameState.roomId,
+                card: specialCard,
+                targetPlayerId: targetPlayerId,
+            });
+        }
+        closeModal();
+    };
+
+    const closeModal = () => {
         setIsStealModalOpen(false);
-        setThiefCard(null);
+        setIsSwapModalOpen(false);
+        setSpecialCard(null);
     };
 
     let topPlayer = null;
@@ -74,11 +94,12 @@ const Game = ({ gameState, myId, socket, language }) => {
 
     return (
         <>
-            {isStealModalOpen && (
+            {(isStealModalOpen || isSwapModalOpen) && (
                 <PlayerSelectionModal 
+                    title={isStealModalOpen ? "Who to steal from?" : "Who to swap with?"}
                     players={otherPlayers}
-                    onSelectPlayer={handleSelectPlayerToSteal}
-                    onCancel={() => setIsStealModalOpen(false)}
+                    onSelectPlayer={handleSelectPlayer}
+                    onCancel={closeModal}
                 />
             )}
             <div className={layoutClass}>
