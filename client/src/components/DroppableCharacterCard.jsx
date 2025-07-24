@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd';
 import { ItemTypes } from './DraggableActionCard';
+import sleptImage from '../assets/status/slept.png'; // 1. Import รูปภาพสถานะหลับ
 
 const characterImages = {
   en: import.meta.glob('../assets/character_en/*.png', { eager: true }),
@@ -48,34 +49,41 @@ const DroppableCharacterCard = ({ character, playerId, onCardDrop, language }) =
         className="character-card image-based-card"
         style={{
           cursor: isSleeping ? 'not-allowed' : 'default',
-          opacity: isSleeping ? 0.7 : 1,
         }}
       >
         {imageUrl && <img src={imageUrl} alt={character.name} className="character-image" />}
         <div className="card-overlay" style={{ backgroundColor: getOverlayColor() }}></div>
         
+        {/* 2. เพิ่มส่วนแสดงผลเมื่อตัวละครหลับ */}
+        {isSleeping && (
+          <>
+            <img src={sleptImage} alt="Slept" className="slept-overlay-image" />
+            <div className="zzz-icon-container">
+              <span className="zzz-icon">💤</span>
+              <span className="zzz-icon">💤</span>
+              <span className="zzz-icon">💤</span>
+            </div>
+          </>
+        )}
+
         <div className="character-info-overlay-top">
           {/* ว่าง */}
         </div>
 
-        {/* Overlay ด้านล่าง - แสดงสถานะหลับเท่านั้น (เอาชื่อออกแล้ว) */}
         <div className="character-info-overlay-bottom">
-            {isSleeping && (
-                <div className="slept-status-on-card">SLEPT</div>
-            )}
+            {/* ว่าง */}
         </div>
       </div>
 
-      <div className="sleep-details">
-        {!isSleeping && (
-          <>
-            <progress value={character.currentSleep} max={character.sleepGoal}></progress>
-            <div className="sleep-status-text">
-              {character.currentSleep} / {character.sleepGoal}
-            </div>
-          </>
-        )}
-      </div>
+      {/* ซ่อน Progress bar และตัวเลขเมื่อหลับ */}
+      {!isSleeping && (
+        <div className="sleep-details">
+          <progress value={character.currentSleep} max={character.sleepGoal}></progress>
+          <div className="sleep-status-text">
+            {character.currentSleep} / {character.sleepGoal}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
