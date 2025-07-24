@@ -81,9 +81,9 @@ const actionCards = [
     { name: 'eat_and_sleep', description: 'disturbs sleep. -1 hour', type: 'subtract', value: 1, rarity: 'common' },
     //SPECIAL
     { name: 'thief', description: 'Steal all cards from another player.', type: 'special_steal', rarity: 'rare' },
-    { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'rare' }, 
-    { name: 'prevent', description: 'Prevent an action against you.', type: 'reaction_prevent', rarity: 'rare' },
-    { name: 'break_down_defenses', description: 'Break a \'prevent\' card.', type: 'reaction_counter', rarity: 'rare' },
+    { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'uncommon' }, 
+    { name: 'prevent', description: 'Prevent an action against you.', type: 'reaction_prevent', rarity: 'uncommon' },
+    { name: 'break_down_defenses', description: 'Break a \'prevent\' card.', type: 'reaction_counter', rarity: 'uncommon' },
     { name: 'Lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
 ];
 
@@ -100,10 +100,10 @@ const createDeckFromRarity = () => {
                 copies = 30;
                 break;
             case 'uncommon':
-                copies = 5;
+                copies = 15;
                 break;
             case 'rare':
-                copies = 15;
+                copies = 10;
                 break;
         }
         for (let i = 0; i < copies; i++) {

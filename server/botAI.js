@@ -1,6 +1,7 @@
 // server/botAI.js
 
-const handleBotTurn = (roomId, rooms, endTurn, executeAction) => {
+// [แก้ไข] เพิ่ม handleActionRequest เป็นพารามิเตอร์
+const handleBotTurn = (roomId, rooms, endTurn, executeAction, handleActionRequest) => {
     const room = rooms[roomId];
     if (!room || !room.gameState) {
         console.log(`Bot turn ended prematurely for room ${roomId} as it no longer exists.`);
@@ -26,14 +27,31 @@ const handleBotTurn = (roomId, rooms, endTurn, executeAction) => {
 
         let actionTaken = false;
 
-        // Logic การตัดสินใจของ Bot (เรียงตามลำดับความสำคัญ)
+        // ฟังก์ชันสำหรับส่ง Action เพื่อให้โค้ดสะอาดขึ้น
+        const playCard = (targetPlayer, card, targetCharacterName = null) => {
+            const actionData = {
+                card,
+                sourcePlayerId: botPlayer.id,
+                targetPlayerId: targetPlayer.id,
+                targetCharacterName,
+            };
+
+            // [แก้ไข] ถ้าเป้าหมายคือผู้เล่นคนอื่นที่ไม่ใช่บอท ให้ใช้ handleActionRequest
+            // เพื่อให้ผู้เล่นสามารถใช้การ์ด Prevent ได้
+            if (targetPlayer.id !== botPlayer.id && !targetPlayer.isBot) {
+                handleActionRequest(roomId, actionData);
+            } else {
+                executeAction(roomId, actionData);
+            }
+            actionTaken = true;
+        };
+
         // 1. พยายามใช้การ์ด Lucky กับตัวเองก่อน
         const luckyCard = playableCards.find(c => c.type === 'instant_sleep');
         if (luckyCard) {
             const targetChar = botPlayer.characters.find(c => c.currentSleep !== c.sleepGoal);
             if (targetChar) {
-                executeAction(roomId, { card: luckyCard, sourcePlayerId: botPlayer.id, targetPlayerId: botPlayer.id, targetCharacterName: targetChar.name });
-                actionTaken = true;
+                playCard(botPlayer, luckyCard, targetChar.name);
             }
         }
 
@@ -43,8 +61,7 @@ const handleBotTurn = (roomId, rooms, endTurn, executeAction) => {
             if (thiefCard) {
                 // ขโมยผู้เล่นที่มีการ์ดเยอะที่สุด
                 const targetPlayer = otherPlayers.reduce((prev, current) => (prev.hand.length > current.hand.length) ? prev : current);
-                executeAction(roomId, { card: thiefCard, sourcePlayerId: botPlayer.id, targetPlayerId: targetPlayer.id });
-                actionTaken = true;
+                playCard(targetPlayer, thiefCard);
             }
         }
         
@@ -53,8 +70,7 @@ const handleBotTurn = (roomId, rooms, endTurn, executeAction) => {
             // ใช้ swap ต่อเมื่อตัวเองมีการ์ดน้อยกว่า 3 ใบ และมีคนอื่นที่มีการ์ดมากกว่า
             const targetPlayer = otherPlayers.find(p => p.hand.length > botPlayer.hand.length);
             if (swapCard && botPlayer.hand.length < 3 && targetPlayer) {
-                 executeAction(roomId, { card: swapCard, sourcePlayerId: botPlayer.id, targetPlayerId: targetPlayer.id });
-                 actionTaken = true;
+                 playCard(targetPlayer, swapCard);
             }
         }
         
@@ -64,18 +80,19 @@ const handleBotTurn = (roomId, rooms, endTurn, executeAction) => {
                 if (card.type === 'add') {
                     const targetChar = botPlayer.characters.find(c => c.currentSleep < c.sleepGoal);
                     if (targetChar) {
-                        executeAction(roomId, { card: card, sourcePlayerId: botPlayer.id, targetPlayerId: botPlayer.id, targetCharacterName: targetChar.name });
-                        actionTaken = true;
+                        playCard(botPlayer, card, targetChar.name);
                         break;
                     }
                 } else if (card.type === 'subtract') {
-                    const humanPlayers = state.players.filter(p => !p.isBot);
-                    if (humanPlayers.length > 0) {
-                        const targetPlayer = humanPlayers[Math.floor(Math.random() * humanPlayers.length)];
+                    // [แก้ไข] ให้โจมตีผู้เล่นที่เป็นคนก่อน ถ้าไม่มี ค่อยโจมตีบอท
+                    const humanPlayers = otherPlayers.filter(p => !p.isBot);
+                    const targetPlayers = humanPlayers.length > 0 ? humanPlayers : otherPlayers;
+
+                    if (targetPlayers.length > 0) {
+                        const targetPlayer = targetPlayers[Math.floor(Math.random() * targetPlayers.length)];
                         const targetChar = targetPlayer.characters.find(c => c.currentSleep > 0 && c.currentSleep !== c.sleepGoal);
                         if (targetChar) {
-                            executeAction(roomId, { card: card, sourcePlayerId: botPlayer.id, targetPlayerId: targetPlayer.id, targetCharacterName: targetChar.name });
-                            actionTaken = true;
+                            playCard(targetPlayer, card, targetChar.name);
                             break;
                         }
                     }

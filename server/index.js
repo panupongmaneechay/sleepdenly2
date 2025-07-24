@@ -25,6 +25,33 @@ function generateRoomId(length) {
     return result;
 }
 
+// [FIX] Moved handleActionRequest to the top-level scope
+const handleActionRequest = (roomId, actionData) => {
+    const room = rooms[roomId];
+    if (!room || !room.gameState) return;
+    const { card, sourcePlayerId, targetPlayerId } = actionData;
+    const sourcePlayer = room.gameState.players.find(p => p.id === sourcePlayerId);
+    const targetPlayer = room.gameState.players.find(p => p.id === targetPlayerId);
+
+    // Ensure targetPlayer is found before proceeding
+    if (!targetPlayer) {
+        console.error(`Target player with ID ${targetPlayerId} not found in room ${roomId}`);
+        return;
+    }
+    
+    const hasPreventCard = targetPlayer.hand.some(c => c.type === 'reaction_prevent');
+
+    if (hasPreventCard && sourcePlayerId !== targetPlayerId) {
+        pendingActions[roomId] = { actionData, stage: 'prevention' };
+        io.to(targetPlayer.id).emit('action_request', {
+            message: `${sourcePlayer.name} is using ${card.name} on you. Use Prevent?`,
+        });
+    } else {
+        executeAction(roomId, actionData);
+    }
+};
+
+
 const endTurn = (roomId) => {
     const room = rooms[roomId];
     if (!room || !room.gameState) return;
@@ -50,7 +77,8 @@ const endTurn = (roomId) => {
     io.to(roomId).emit('update_game_state', state);
 
     if (nextPlayer.isBot) {
-        handleBotTurn(roomId, rooms, endTurn, executeAction);
+        // Now this call is valid as handleActionRequest is in the same scope
+        handleBotTurn(roomId, rooms, endTurn, executeAction, handleActionRequest);
     }
 };
 
@@ -143,7 +171,7 @@ io.on('connection', (socket) => {
 
     rooms[roomId] = {
       id: roomId,
-      players: [{ id: socket.id, name: `Player 1` }], // [แก้ไข] เริ่มต้นเป็น Player 1
+      players: [{ id: socket.id, name: `Player 1` }],
       bots: bots || 0, maxPlayers: parseInt(maxPlayers),
     };
     socket.join(roomId);
@@ -156,7 +184,6 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (room && !room.gameState) {
         if (room.players.length + room.bots < room.maxPlayers) {
-            // [แก้ไข] ตั้งชื่อตามลำดับที่เข้าร่วม
             const playerNumber = room.players.length + 1;
             room.players.push({ id: socket.id, name: `Player ${playerNumber}` });
             socket.join(roomId);
@@ -189,14 +216,13 @@ io.on('connection', (socket) => {
             turnVersion: 0,
         };
         
-        // [แก้ไข] รวมผู้เล่นและบอทก่อน แล้วค่อยตั้งชื่อ
         let playerCounter = 1;
         let botCounter = 1;
 
         room.players.forEach(player => {
             gameState.players.push({
                 ...player,
-                name: `Player ${playerCounter++}`, // กำหนดชื่อใหม่ตามลำดับ
+                name: `Player ${playerCounter++}`,
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });
@@ -205,7 +231,7 @@ io.on('connection', (socket) => {
         for(let i = 0; i < room.bots; i++) {
              gameState.players.push({
                 id: `bot-${i+1}`, 
-                name: `Bot ${botCounter++}`, // ตั้งชื่อ Bot ตามลำดับ
+                name: `Bot ${botCounter++}`,
                 isBot: true,
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
@@ -215,27 +241,8 @@ io.on('connection', (socket) => {
         room.gameState = gameState;
         io.to(roomId).emit('game_started', room.gameState);
         if (gameState.players[0].isBot) {
-            handleBotTurn(roomId, rooms, endTurn, executeAction);
+            handleBotTurn(roomId, rooms, endTurn, executeAction, handleActionRequest);
         }
-    }
-  };
-
-  const handleActionRequest = (roomId, actionData) => {
-    const room = rooms[roomId];
-    if (!room || !room.gameState) return;
-    const { card, sourcePlayerId, targetPlayerId } = actionData;
-    const sourcePlayer = room.gameState.players.find(p => p.id === sourcePlayerId);
-    const targetPlayer = room.gameState.players.find(p => p.id === targetPlayerId);
-    
-    const hasPreventCard = targetPlayer.hand.some(c => c.type === 'reaction_prevent');
-
-    if (hasPreventCard && sourcePlayerId !== targetPlayerId) {
-        pendingActions[roomId] = { actionData, stage: 'prevention' };
-        io.to(targetPlayer.id).emit('action_request', {
-            message: `${sourcePlayer.name} is using ${card.name} on you. Use Prevent?`,
-        });
-    } else {
-        executeAction(roomId, actionData);
     }
   };
   
