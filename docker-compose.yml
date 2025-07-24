@@ -1,0 +1,26 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  # Service สำหรับ Server (Backend)
+  server:
+    build: ./server
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./server:/app
+      - /app/node_modules # ป้องกันไม่ให้ node_modules ของเครื่อง host ไปทับใน container
+    command: npm run dev # ใช้ nodemon เพื่อ hot-reloading
+
+  # Service สำหรับ Client (Frontend)
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules # ป้องกันไม่ให้ node_modules ของเครื่อง host ไปทับใน container
+    depends_on:
+      - server
+
