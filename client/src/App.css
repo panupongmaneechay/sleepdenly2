@@ -307,14 +307,24 @@ ul {
 .action-cards .action-card.image-action-card:nth-child(4) { transform: rotate(5deg); }
 .action-cards .action-card.image-action-card:nth-child(5) { transform: rotate(10deg); }
 
-/* ปรับปรุง CSS สำหรับการ Hover และ Dragging */
-/* ใช้ .action-cards .action-card.image-action-card:hover เพื่อให้มี specificity สูงพอที่จะ override rule การหมุน */
-.action-cards .action-card.image-action-card:not(.is-dragging):hover {
+/* .action-cards .action-card.image-action-card:not(.is-dragging):hover {
   transform: translateY(-50px) scale(1.7) !important;
   z-index: 101;
   border-color: #007bff;
+} */
+.action-cards .action-card.image-action-card:not(.is-dragging):hover {
+  transform: translateY(-50px) scale(1.7) !important;
+  z-index: 102; /* ทำให้ z-index เท่ากับตอนลาก */
+  border-color: #007bff;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.7); /* เพิ่ม box-shadow ให้เหมือนตอนลาก */
 }
 
+.action-cards .action-card.image-action-card.is-dragging {
+  /* เพิ่มกฎนี้เพื่อให้การ์ดที่ถูกลากขยายขนาดและมีเงาเหมือนตอน hover */
+  transform: translateY(-50px) scale(1.7) !important;
+  z-index: 102 !important; 
+  box-shadow: 0 8px 16px rgba(0,0,0,0.7);
+}
 /* สไตล์เมื่อการ์ดถูกลาก */
 .action-card.image-action-card.is-dragging {
   /* กำหนดขนาดและตำแหน่งเมื่อถูกลาก */

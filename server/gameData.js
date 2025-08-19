@@ -84,7 +84,7 @@ const actionCards = [
     { name: 'swap_card', description: 'Swap your hand with another player.', type: 'special_swap', rarity: 'uncommon' }, 
     { name: 'prevent', description: 'Prevent an action against you.', type: 'reaction_prevent', rarity: 'uncommon' },
     { name: 'break_down_defenses', description: 'Break a \'prevent\' card.', type: 'reaction_counter', rarity: 'uncommon' },
-    { name: 'Lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
+    { name: 'lucky', description: 'Instantly puts a character to sleep.', type: 'instant_sleep', rarity: 'rare' }, 
 ];
 
 const shuffleDeck = (deck) => {

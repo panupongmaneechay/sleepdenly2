@@ -1,6 +1,6 @@
 // client/src/components/DraggableActionCard.jsx
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 
 export const ItemTypes = {
@@ -15,7 +15,8 @@ const actionCardImages = {
 
 const DraggableActionCard = ({ card, language, onClick }) => {
   const [imageUrl, setImageUrl] = useState('');
-  
+  const cardRef = useRef(null); // เพิ่ม ref สำหรับอ้างอิง DOM
+
   const isClickOnlyCard = card.type.startsWith('special_');
   const isReactionCard = card.type.startsWith('reaction_');
 
@@ -29,14 +30,23 @@ const DraggableActionCard = ({ card, language, onClick }) => {
     }
   }, [card.name, language]);
 
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const [{ isDragging }, drag, preview] = useDrag(() => ({ // เพิ่ม preview เข้ามา
     type: ItemTypes.CARD,
     item: { card },
     canDrag: !isClickOnlyCard && !isReactionCard,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
-  }));
+  }), [isClickOnlyCard, isReactionCard, card]);
+
+  // เชื่อมต่อ drag source และ drag preview กับ ref
+  useEffect(() => {
+    if (cardRef.current) {
+        // ใช้ element เดียวกันเป็นทั้ง source และ preview
+        preview(cardRef.current, { captureDraggingState: true });
+    }
+  }, [cardRef, preview]);
+
 
   const handleClick = () => {
     if (isClickOnlyCard && onClick) {
@@ -46,12 +56,15 @@ const DraggableActionCard = ({ card, language, onClick }) => {
 
   return (
     <div
-      ref={isClickOnlyCard || isReactionCard ? null : drag}
+      ref={isClickOnlyCard || isReactionCard ? cardRef : (el) => {
+          cardRef.current = el; // กำหนด ref
+          drag(el); // เชื่อมต่อ drag source
+      }}
       onClick={handleClick}
-      // เพิ่ม className 'is-dragging' เมื่อ isDragging เป็นจริง
       className={`action-card image-action-card ${isReactionCard ? 'reaction-card' : ''} ${isDragging ? 'is-dragging' : ''}`}
       style={{
         cursor: isClickOnlyCard ? 'pointer' : (isReactionCard ? 'default' : 'grab'),
+        opacity: isDragging ? 0.5 : 1, // ซ่อนการ์ดต้นฉบับเล็กน้อยขณะลาก
       }}
     >
       {imageUrl ? (

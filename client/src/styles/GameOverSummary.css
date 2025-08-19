@@ -18,10 +18,10 @@
 
 .summary-container {
     background: white;
-    padding: 2rem;
+    padding: 2.5rem;
     border-radius: 16px;
     width: 90%;
-    max-width: 1000px;
+    max-width: 1200px; /* เพิ่ม max-width เพื่อรองรับการ์ด 3 ใบในแถวเดียว */
     max-height: 90vh;
     overflow-y: auto;
     text-align: center;
@@ -30,10 +30,11 @@
 .summary-container h1 {
     color: #28a745;
     margin-top: 0;
+    font-size: 2.5rem;
 }
 
 .summary-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     color: #666;
     margin-bottom: 2rem;
 }
@@ -42,7 +43,7 @@
     display: flex;
     justify-content: center;
     gap: 1.5rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* แก้ไขตรงนี้เพื่อให้การ์ดเรียงในแถวเดียวเสมอ */
     margin-bottom: 2rem;
 }
 
@@ -50,14 +51,14 @@
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 12px;
-    padding: 1rem;
-    width: 280px;
+    padding: 1.5rem;
+    width: 300px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .summary-character-image {
     width: 100%;
-    height: 180px;
+    height: 200px;
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 1rem;
@@ -71,12 +72,12 @@
 
 .summary-card h4 {
     margin: 0 0 0.5rem 0;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
 }
 
 .final-score {
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     margin-bottom: 1rem;
 }
 
@@ -94,6 +95,7 @@
     margin: 0 0 0.5rem 0;
     border-bottom: 2px solid;
     padding-bottom: 0.25rem;
+    font-size: 1.1rem;
 }
 
 .positive-list h5 { border-color: #28a745; }
@@ -103,20 +105,24 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .total-summary {
-    margin-top: 2rem;
-    padding: 1rem;
+    margin-top: 2.5rem;
+    padding: 1.5rem;
     background: #e9ecef;
     border-radius: 8px;
 }
 
+.total-summary h3 {
+    font-size: 1.8rem;
+}
+
 .play-again-button {
-    margin-top: 2rem;
-    padding: 12px 30px;
-    font-size: 1.2rem;
+    margin-top: 2.5rem;
+    padding: 15px 35px;
+    font-size: 1.4rem;
     font-weight: bold;
     cursor: pointer;
     background-color: #007bff;
