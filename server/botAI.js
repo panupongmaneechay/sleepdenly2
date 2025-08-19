@@ -13,7 +13,6 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
-    // ฟังก์ชันสำหรับส่ง Action
     const playCard = (targetPlayer, card, targetCharacterName = null) => {
         const actionData = {
             card,
@@ -29,7 +28,6 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
         }
     };
     
-    // สร้างรายการการ์ดที่ "สามารถเล่นได้" ในเทิร์นนี้
     const playableCards = botPlayer.hand.filter(card => 
         !card.type.startsWith('reaction_')
     );
@@ -40,10 +38,26 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
         return;
     }
 
+    // [เพิ่ม] กลยุทธ์ใหม่: ตรวจสอบว่ามีตัวละครของตัวเองที่เวลานอนเกินเป้าหมายหรือไม่
+    const overSleptChar = botPlayer.characters.find(c => c.currentSleep > c.sleepGoal);
+    if (overSleptChar) {
+        const subtractCard = playableCards.find(c => c.type === 'subtract');
+        if (subtractCard) {
+            // คำนวณค่าที่จะต้องลดเพื่อให้เวลานอนพอดี
+            const requiredSubtract = overSleptChar.currentSleep - overSleptChar.sleepGoal;
+            // ใช้การ์ดลบกับตัวเองถ้ามีค่าเหมาะสม
+            if (subtractCard.value === requiredSubtract) {
+                console.log(`Bot ${botPlayer.name} used a subtract card on its own character ${overSleptChar.name} to correct the sleep goal.`);
+                playCard(botPlayer, subtractCard, overSleptChar.name);
+                await delay(2000);
+            }
+        }
+    }
+
     // 1. พยายามใช้การ์ด Lucky กับตัวเอง
     const luckyCard = playableCards.find(c => c.type === 'instant_sleep');
     if (luckyCard) {
-        const targetChar = botPlayer.characters.find(c => c.currentSleep !== c.sleepGoal);
+        const targetChar = botPlayer.characters.find(c => c.currentSleep < c.sleepGoal);
         if (targetChar) {
             playCard(botPlayer, luckyCard, targetChar.name);
             await delay(2000);
@@ -53,7 +67,6 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
     // 2. ใช้การ์ดพิเศษอื่นๆ (Thief, Swap) ถ้าเหมาะสม
     const thiefCard = playableCards.find(c => c.type === 'special_steal');
     if (thiefCard && otherPlayers.length > 0) {
-        // ขโมยผู้เล่นที่มีการ์ดเยอะที่สุด
         const targetPlayer = otherPlayers.reduce((prev, current) => (prev.hand.length > current.hand.length) ? prev : current);
         playCard(targetPlayer, thiefCard);
         await delay(2000);
@@ -61,7 +74,6 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
     
     const swapCard = playableCards.find(c => c.type === 'special_swap');
     if (swapCard && otherPlayers.length > 0) {
-        // ใช้ swap เมื่อตัวเองมีการ์ดน้อยกว่า 3 ใบ และมีคนอื่นที่มีการ์ดมากกว่า
         const targetPlayer = otherPlayers.find(p => p.hand.length > botPlayer.hand.length);
         if (targetPlayer) {
              playCard(targetPlayer, swapCard);
@@ -70,7 +82,7 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
     }
     
     // 3. เล่นการ์ด add/subtract ทั้งหมดที่อยู่ในมือ
-    // การลบคำสั่ง 'break' ทำให้บอทเล่นการ์ดทั้งหมดในประเภทนั้นๆ
+    // [แก้ไข] เปลี่ยนกลยุทธ์การโจมตี
     for (let card of playableCards) {
         if (card.type === 'add') {
             const targetChar = botPlayer.characters.find(c => c.currentSleep < c.sleepGoal);
@@ -79,11 +91,29 @@ const handleBotTurn = async (roomId, rooms, endTurn, executeAction, handleAction
                 await delay(2000);
             }
         } else if (card.type === 'subtract') {
-            const humanPlayers = otherPlayers.filter(p => !p.isBot);
-            const targetPlayers = humanPlayers.length > 0 ? humanPlayers : otherPlayers;
+            // [แก้ไข] โจมตีผู้เล่นที่มีตัวละครที่ใกล้หลับมากที่สุด
+            let bestTargetPlayer = null;
+            let minRemainingSleep = Infinity;
 
-            if (targetPlayers.length > 0) {
-                const targetPlayer = targetPlayers[Math.floor(Math.random() * targetPlayers.length)];
+            for (const player of otherPlayers) {
+                for (const char of player.characters) {
+                    const remainingSleep = char.sleepGoal - char.currentSleep;
+                    if (remainingSleep > 0 && remainingSleep < minRemainingSleep) {
+                        minRemainingSleep = remainingSleep;
+                        bestTargetPlayer = player;
+                    }
+                }
+            }
+
+            if (bestTargetPlayer) {
+                const targetChar = bestTargetPlayer.characters.find(c => c.sleepGoal - c.currentSleep === minRemainingSleep);
+                if (targetChar) {
+                    playCard(bestTargetPlayer, card, targetChar.name);
+                    await delay(2000);
+                }
+            } else {
+                // หากไม่มีใครใกล้จะหลับเลย ให้โจมตีแบบสุ่มเหมือนเดิม
+                const targetPlayer = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
                 const targetChar = targetPlayer.characters.find(c => c.currentSleep > 0 && c.currentSleep !== c.sleepGoal);
                 if (targetChar) {
                     playCard(targetPlayer, card, targetChar.name);
