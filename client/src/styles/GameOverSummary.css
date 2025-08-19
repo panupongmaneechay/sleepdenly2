@@ -21,7 +21,7 @@
     padding: 2.5rem;
     border-radius: 16px;
     width: 90%;
-    max-width: 1200px; /* เพิ่ม max-width เพื่อรองรับการ์ด 3 ใบในแถวเดียว */
+    max-width: 1200px;
     max-height: 90vh;
     overflow-y: auto;
     text-align: center;
@@ -33,8 +33,8 @@
     font-size: 2.5rem;
 }
 
-.summary-subtitle {
-    font-size: 1.5rem;
+.summary-container .summary-subtitle {
+    font-size: 1.4rem;
     color: #666;
     margin-bottom: 2rem;
 }
@@ -43,7 +43,7 @@
     display: flex;
     justify-content: center;
     gap: 1.5rem;
-    flex-wrap: nowrap; /* แก้ไขตรงนี้เพื่อให้การ์ดเรียงในแถวเดียวเสมอ */
+    flex-wrap: nowrap;
     margin-bottom: 2rem;
 }
 
@@ -54,6 +54,7 @@
     padding: 1.5rem;
     width: 300px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
 .summary-character-image {
@@ -73,11 +74,12 @@
 .summary-card h4 {
     margin: 0 0 0.5rem 0;
     font-size: 1.5rem;
+    font-weight: bold; /* เพิ่มความหนา */
 }
 
-.final-score {
+.summary-card .final-score {
     font-weight: bold;
-    font-size: 1.3rem;
+    font-size: 1.5rem; /* ปรับขนาดให้เท่ากับชื่อ */
     margin-bottom: 1rem;
 }
 
@@ -95,7 +97,8 @@
     margin: 0 0 0.5rem 0;
     border-bottom: 2px solid;
     padding-bottom: 0.25rem;
-    font-size: 1.1rem;
+    font-size: 1.5rem; /* ปรับขนาดให้เท่ากับส่วนอื่น ๆ */
+    font-weight: bold; /* เพิ่มความหนา */
 }
 
 .positive-list h5 { border-color: #28a745; }
@@ -105,7 +108,8 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.5rem; /* ปรับขนาดให้เท่ากับส่วนอื่น ๆ */
+    font-weight: bold; /* เพิ่มความหนา */
 }
 
 .total-summary {
@@ -113,16 +117,18 @@
     padding: 1.5rem;
     background: #e9ecef;
     border-radius: 8px;
+    text-align: center;
 }
 
 .total-summary h3 {
     font-size: 1.8rem;
+    font-weight: bold; /* เพิ่มความหนา */
 }
 
 .play-again-button {
     margin-top: 2.5rem;
     padding: 15px 35px;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: bold;
     cursor: pointer;
     background-color: #007bff;

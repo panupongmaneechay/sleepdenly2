@@ -11,10 +11,8 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
-//   cors: { origin: "http://192.168.1.102:5173", methods: ["GET", "POST"] }
-cors: { origin: "http://10.30.16.104:5173", methods: ["GET", "POST"] }
 //   cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] }
-
+    cors: { origin: "http://10.30.16.104:5173", methods: ["GET", "POST"] }
 });
 const rooms = {};
 const pendingActions = {};
@@ -28,7 +26,6 @@ function generateRoomId(length) {
     return result;
 }
 
-// [FIX] Moved handleActionRequest to the top-level scope
 const handleActionRequest = (roomId, actionData) => {
     const room = rooms[roomId];
     if (!room || !room.gameState) return;
@@ -36,7 +33,6 @@ const handleActionRequest = (roomId, actionData) => {
     const sourcePlayer = room.gameState.players.find(p => p.id === sourcePlayerId);
     const targetPlayer = room.gameState.players.find(p => p.id === targetPlayerId);
 
-    // Ensure targetPlayer is found before proceeding
     if (!targetPlayer) {
         console.error(`Target player with ID ${targetPlayerId} not found in room ${roomId}`);
         return;
@@ -80,7 +76,6 @@ const endTurn = (roomId) => {
     io.to(roomId).emit('update_game_state', state);
 
     if (nextPlayer.isBot) {
-        // Now this call is valid as handleActionRequest is in the same scope
         handleBotTurn(roomId, rooms, endTurn, executeAction, handleActionRequest);
     }
 };
@@ -198,6 +193,19 @@ io.on('connection', (socket) => {
         }
     } else {
         socket.emit('error_message', 'Room not found or game already started.');
+    }
+  });
+
+  // [เพิ่ม] listener สำหรับ add_bot
+  socket.on('add_bot', (data) => {
+    const { roomId } = data;
+    const room = rooms[roomId];
+    if (room && room.players[0].id === socket.id && room.players.length + room.bots < room.maxPlayers) {
+        room.bots++;
+        io.to(roomId).emit('room_updated', room);
+        checkAndStartGame(roomId);
+    } else {
+        socket.emit('error_message', 'You cannot add a bot to this room.');
     }
   });
   
