@@ -32,7 +32,7 @@ const DraggableActionCard = ({ card, language, onClick }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.CARD,
     item: { card },
-    canDrag: !isClickOnlyCard && !isReactionCard, // ลากไม่ได้ถ้าเป็น Special หรือ Reaction
+    canDrag: !isClickOnlyCard && !isReactionCard,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -48,9 +48,9 @@ const DraggableActionCard = ({ card, language, onClick }) => {
     <div
       ref={isClickOnlyCard || isReactionCard ? null : drag}
       onClick={handleClick}
-      className={`action-card image-action-card ${isReactionCard ? 'reaction-card' : ''}`}
+      // เพิ่ม className 'is-dragging' เมื่อ isDragging เป็นจริง
+      className={`action-card image-action-card ${isReactionCard ? 'reaction-card' : ''} ${isDragging ? 'is-dragging' : ''}`}
       style={{
-        opacity: isDragging ? 0.5 : 1,
         cursor: isClickOnlyCard ? 'pointer' : (isReactionCard ? 'default' : 'grab'),
       }}
     >

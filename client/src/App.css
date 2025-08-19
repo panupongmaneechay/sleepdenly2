@@ -255,34 +255,74 @@ ul {
 
 /* สไตล์ .hand ถูกลบออกไป เพราะย้ายไปที่ใหม่แล้ว */
 
+.action-hand-container {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  width: 600px;
+  background-color: rgba(0, 0, 0, 0.65);
+  border: 1px solid #aaa;
+  border-radius: 12px;
+  color: white;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+}
+
+.action-hand-container h4 {
+  margin: 0 0 0.5rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #666;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
 .action-cards {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  min-height: 240px; /* Increased height */
+  min-height: 240px;
   padding-bottom: 20px;
 }
 
 .action-card.image-action-card {
   width: 140px;
-  height: 220px; /* Increased height */
+  height: 220px;
   border: 3px solid white;
   border-radius: 10px;
   background-color: #fff;
-  transition: transform 0.3s ease, z-index 0.3s ease;
+  transition: transform 0.2s ease, z-index 0.2s ease;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
   margin-left: -80px;
 }
 
 .action-cards .action-card.image-action-card:first-child { margin-left: 0; }
-.action-card.image-action-card:hover { transform: translateY(-20px) scale(1.1); z-index: 100; }
-.action-cards:hover .action-card.image-action-card { margin-left: -70px; }
 .action-cards .action-card.image-action-card:nth-child(1) { transform: rotate(-10deg); }
 .action-cards .action-card.image-action-card:nth-child(2) { transform: rotate(-5deg); }
 .action-cards .action-card.image-action-card:nth-child(3) { transform: rotate(0deg); }
 .action-cards .action-card.image-action-card:nth-child(4) { transform: rotate(5deg); }
 .action-cards .action-card.image-action-card:nth-child(5) { transform: rotate(10deg); }
+
+/* ปรับปรุง CSS สำหรับการ Hover และ Dragging */
+/* ใช้ .action-cards .action-card.image-action-card:hover เพื่อให้มี specificity สูงพอที่จะ override rule การหมุน */
+.action-cards .action-card.image-action-card:not(.is-dragging):hover {
+  transform: translateY(-50px) scale(1.7) !important;
+  z-index: 101;
+  border-color: #007bff;
+}
+
+/* สไตล์เมื่อการ์ดถูกลาก */
+.action-card.image-action-card.is-dragging {
+  /* กำหนดขนาดและตำแหน่งเมื่อถูกลาก */
+  transform: translateY(-50px) scale(1.7) !important;
+  opacity: 1 !important; 
+  z-index: 102 !important; /* จัดลำดับให้อยู่บนสุด */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.7);
+}
 
 .action-card.image-action-card img {
   width: 100%;
