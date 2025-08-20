@@ -66,7 +66,8 @@ const translations = {
         "get_odor_pollution": "Get odor pollution",
         "nightmare": "Nightmare",
         "drink_water_before_bed": "Drink water before going to bed",
-        "eat_and_sleep": "Eat and sleep"
+        "eat_and_sleep": "Eat and sleep",
+        "lucky": "Lucky!" // [เพิ่ม] ข้อความสำหรับการ์ด Lucky
     }
   },
   th: {
@@ -123,7 +124,8 @@ const translations = {
         "get_odor_pollution": "มีมลพิษทางกลิ่น",
         "nightmare": "ฝันร้าย",
         "drink_water_before_bed": "ดื่มน้ำก่อนนอน",
-        "eat_and_sleep": "กินแล้วนอน"
+        "eat_and_sleep": "กินแล้วนอน",
+        "lucky": "โชคดี!" // [เพิ่ม] ข้อความสำหรับการ์ด Lucky
     }
   },
   jp: {
@@ -180,7 +182,8 @@ const translations = {
         "get_odor_pollution": "悪臭公害がある",
         "nightmare": "悪夢",
         "drink_water_before_bed": "寝る前に水を飲む",
-        "eat_and_sleep": "食べて寝る"
+        "eat_and_sleep": "食べて寝る",
+        "lucky": "ラッキー！" // [เพิ่ม] ข้อความสำหรับการ์ด Lucky
     }
   }
 };
@@ -201,6 +204,11 @@ const SummaryCard = ({ character, history, language }) => {
         action => action.targetCharacterName === character.name && action.card.type === 'subtract'
     );
 
+    // [เพิ่ม] แยกการ์ด Lucky ออกมา
+    const luckyCardUsed = history.find(
+      action => action.targetCharacterName === character.name && action.card.name === 'lucky'
+    );
+
     return (
         <div className="summary-card">
             <div className="summary-character-image">
@@ -213,10 +221,20 @@ const SummaryCard = ({ character, history, language }) => {
                 <div className="positive-list">
                     <h5>{t.goodFactors}</h5>
                     <ul>
+                        {/* [แก้ไข] แสดงผล Lucky card ก่อน */}
+                        {luckyCardUsed && (
+                          <li key="lucky">
+                            {t.cardNames['lucky']}
+                          </li>
+                        )}
                         {positiveCards.length > 0 ? (
-                            positiveCards.map((action, i) => <li key={i}>+{action.card.value} {t.hours} ({t.cardNames[action.card.name] || action.card.name})</li>)
+                            positiveCards.map((action, i) => (
+                                <li key={i}>
+                                    +{action.card.value} {t.hours} ({t.cardNames[action.card.name] || action.card.name})
+                                </li>
+                            ))
                         ) : (
-                            <li>{t.none}</li>
+                            !luckyCardUsed && <li>{t.none}</li>
                         )}
                     </ul>
                 </div>
