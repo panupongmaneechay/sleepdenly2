@@ -12,6 +12,7 @@ import JoinGame from './components/JoinGame';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import GameOverSummary from './components/GameOverSummary';
 import GameLogo from './components/GameLogo';
+import HowToPlay from './components/HowToPlay'; // [เพิ่ม] import HowToPlay component
 
 const socket = io("http://localhost:3001");
 // const socket = io("http://10.30.16.104:3001"); 
@@ -83,12 +84,20 @@ function App() {
     socket.emit('join_room', { roomId });
   };
 
+  const handleHome = () => {
+    setView('home');
+  };
+
+  const handleShowHowToPlay = () => {
+    setView('howToPlay');
+  };
+
   // --- [เพิ่ม] ฟังก์ชันสำหรับกำหนด className ---
   const getAppClassName = () => {
     if (view === 'game' || view === 'summary') {
       return 'App app-game-background';
     }
-    if (['home', 'create', 'join', 'waiting'].includes(view)) {
+    if (['home', 'create', 'join', 'waiting', 'howToPlay'].includes(view)) {
       return 'App app-home-background';
     }
     return 'App';
@@ -97,9 +106,11 @@ function App() {
   const renderContent = () => {
     switch (view) {
       case 'home':
-        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
+        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} onShowHowToPlay={handleShowHowToPlay} language={language} />;
+      case 'howToPlay':
+        return <HowToPlay language={language} onBack={handleHome} />;
       case 'join':
-        return <JoinGame onJoin={handleJoinRoom} onBack={() => setView('home')} />;
+        return <JoinGame onJoin={handleJoinRoom} onBack={handleHome} />;
       case 'create':
         return (
             <div className="create-room-form">
@@ -151,13 +162,13 @@ function App() {
         if (!summaryData) return null;
         return <GameOverSummary summaryData={summaryData} language={language} />;
       default:
-        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} />;
+        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} onShowHowToPlay={handleShowHowToPlay} language={language} />;
     }
   };
   
   return (
     <div className={getAppClassName()}>
-      {['home', 'create', 'join', 'waiting'].includes(view) && <GameLogo language={language} />}
+      {['home', 'create', 'join', 'waiting', 'howToPlay'].includes(view) && <GameLogo language={language} />}
       {view !== 'summary' && <LanguageSwitcher currentLang={language} onLangChange={setLanguage} />}
       {renderContent()}
     </div>

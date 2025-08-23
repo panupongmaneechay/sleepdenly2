@@ -322,9 +322,11 @@ ul {
 .action-cards .action-card.image-action-card.is-dragging {
   /* เพิ่มกฎนี้เพื่อให้การ์ดที่ถูกลากขยายขนาดและมีเงาเหมือนตอน hover */
   transform: translateY(-50px) scale(1.7) !important;
+  opacity: 1 !important; 
   z-index: 102 !important; 
   box-shadow: 0 8px 16px rgba(0,0,0,0.7);
 }
+
 /* สไตล์เมื่อการ์ดถูกลาก */
 .action-card.image-action-card.is-dragging {
   /* กำหนดขนาดและตำแหน่งเมื่อถูกลาก */
@@ -384,7 +386,6 @@ ul {
   color: #28a745;
 }
 
-/* --- [ เพิ่ม ] CSS สำหรับกล่อง Action Card ที่แยกออกมา --- */
 .action-hand-container {
   position: fixed;
   bottom: 1rem;
@@ -408,4 +409,21 @@ ul {
   border-bottom: 1px solid #666;
   text-align: center;
   font-size: 1.1rem;
+}
+
+/* เพิ่มสไตล์สำหรับปุ่มเปิด-ปิด Log */
+.log-toggle-tab {
+  position: fixed; /* ใช้ fixed เพื่อให้ปุ่มอยู่กับที่เมื่อ scroll */
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 101; /* ให้อยู่เหนือ GameLog */
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
 }

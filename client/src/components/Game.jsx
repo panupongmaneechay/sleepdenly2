@@ -5,7 +5,7 @@ import PlayerArea from './PlayerArea';
 import PlayerSelectionModal from './PlayerSelectionModal';
 import ConfirmationModal from './ConfirmationModal';
 import GameLog from './GameLog';
-import DraggableActionCard from './DraggableActionCard'; // เพิ่ม Import นี้
+import DraggableActionCard from './DraggableActionCard';
 import endTurnButtonImage from '../assets/button/end.png';
 
 const Game = ({ gameState, myId, socket, language }) => {
@@ -14,6 +14,7 @@ const Game = ({ gameState, myId, socket, language }) => {
     const [specialCard, setSpecialCard] = useState(null);
     const [confirmation, setConfirmation] = useState(null);
     const [floatingTexts, setFloatingTexts] = useState([]);
+    const [isLogVisible, setIsLogVisible] = useState(true);
 
     useEffect(() => {
         socket.on('action_request', (data) => {
@@ -33,7 +34,7 @@ const Game = ({ gameState, myId, socket, language }) => {
 
         socket.on('action_effect', (data) => {
             const newText = {
-                id: Date.now() + Math.random(), // สร้าง ID ที่ไม่ซ้ำกัน
+                id: Date.now() + Math.random(),
                 ...data
             };
             setFloatingTexts(currentTexts => [...currentTexts, newText]);
@@ -49,7 +50,6 @@ const Game = ({ gameState, myId, socket, language }) => {
             socket.off('action_effect');
         };
     }, [socket]);
-
 
     const me = gameState.players.find(p => p.id === myId);
     const otherPlayers = gameState.players.filter(p => p.id !== myId);
@@ -111,6 +111,10 @@ const Game = ({ gameState, myId, socket, language }) => {
             socket.emit('counter_response', { roomId: gameState.roomId, useCard });
         }
         setConfirmation(null);
+    };
+
+    const handleLogToggle = () => {
+        setIsLogVisible(!isLogVisible);
     };
 
     let topPlayer = null;
@@ -191,7 +195,6 @@ const Game = ({ gameState, myId, socket, language }) => {
                 </div>
             </div>
             
-            {/* ส่วนแสดง Action Card ที่แยกออกมาใหม่ */}
             {me && (
                 <div className="action-hand-container">
                     <h4>Your Hand {isMyTurn ? "(Drag a card to play)" : "(Wait for your turn)"}</h4>
@@ -208,7 +211,12 @@ const Game = ({ gameState, myId, socket, language }) => {
                 </div>
             )}
 
-            <GameLog logs={gameState.log} />
+            {isLogVisible && <GameLog logs={gameState.log} />}
+
+            {/* [เพิ่ม] ปุ่มสำหรับสลับการแสดงผล Log */}
+            <button className="log-toggle-tab" onClick={handleLogToggle}>
+                {isLogVisible ? 'Close Log' : 'Open Log'}
+            </button>
         </>
     );
 };
