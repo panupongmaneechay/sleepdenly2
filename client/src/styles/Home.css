@@ -37,3 +37,35 @@
   background-color: #0056b3;
   transform: scale(1.05);
 }
+
+/* [แก้ไข] สไตล์สำหรับกรอบผู้พัฒนา */
+.creators-box {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    text-align: left;
+    max-width: 250px;
+}
+
+.creators-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #666;
+    padding-bottom: 0.5rem;
+}
+
+.creators-box ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.creators-box li {
+    font-size: 1rem;
+    margin-bottom: 0.2rem;
+}

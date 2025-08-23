@@ -5,10 +5,12 @@ import '../styles/GameOverSummary.css';
 
 // โหลดรูปภาพทั้งหมดเข้ามา
 const characterImages = {
-  en: import.meta.glob('../assets/character_en/*.png', { eager: true }),
-  th: import.meta.glob('../assets/character_th/*.png', { eager: true }),
-  jp: import.meta.glob('../assets/character_jp/*.png', { eager: true }),
+  en: import.meta.glob('/src/assets/character_en/*.png', { eager: true }),
+  th: import.meta.glob('/src/assets/character_th/*.png', { eager: true }),
+  jp: import.meta.glob('/src/assets/character_jp/*.png', { eager: true }),
 };
+const avatarImages = import.meta.glob('/src/assets/avatar/*.png', { eager: true, as: 'url' });
+
 
 // [แก้ไข] Object สำหรับการแปลข้อความ
 const translations = {
@@ -17,8 +19,11 @@ const translations = {
     summaryTitle: "Here's your sleep summary:",
     finalSleep: "Final Sleep:",
     hours: "hours",
-    goodFactors: "Good Sleep Factors:",
-    badFactors: "Bad Sleep Factors:",
+    goodFactors: "Good Sleep Factors", // [แก้ไข]
+    badFactors: "Bad Sleep Factors", // [แก้ไข]
+    behavior: "Behavior", // [เพิ่ม]
+    noOfHours: "No. of Hours", // [เพิ่ม]
+    luckyHours: "Lucky Hours", // [เพิ่ม]
     none: "None",
     overallScore: "Overall Sleep Score:",
     playAgain: "Play Again",
@@ -67,7 +72,7 @@ const translations = {
         "nightmare": "Nightmare",
         "drink_water_before_bed": "Drink water before going to bed",
         "eat_and_sleep": "Eat and sleep",
-        "lucky": "Lucky!" // [เพิ่ม] ข้อความสำหรับการ์ด Lucky
+        "lucky": "Lucky!"
     }
   },
   th: {
@@ -75,8 +80,11 @@ const translations = {
     summaryTitle: "นี่คือสรุปการนอนของคุณ:",
     finalSleep: "เวลานอนสุดท้าย:",
     hours: "ชั่วโมง",
-    goodFactors: "ปัจจัยการนอนที่ดี:",
-    badFactors: "ปัจจัยการนอนที่ไม่ดี:",
+    goodFactors: "ปัจจัยการนอนที่ดี",
+    badFactors: "ปัจจัยการนอนที่ไม่ดี",
+    behavior: "พฤติกรรม",
+    noOfHours: "จำนวน (ชม.)",
+    luckyHours: "Lucky Hours",
     none: "ไม่มี",
     overallScore: "คะแนนการนอนโดยรวม:",
     playAgain: "เล่นอีกครั้ง",
@@ -125,7 +133,7 @@ const translations = {
         "nightmare": "ฝันร้าย",
         "drink_water_before_bed": "ดื่มน้ำก่อนนอน",
         "eat_and_sleep": "กินแล้วนอน",
-        "lucky": "โชคดี!" // [เพิ่ม] ข้อความสำหรับการ์ด Lucky
+        "lucky": "โชคดี!"
     }
   },
   jp: {
@@ -133,8 +141,11 @@ const translations = {
     summaryTitle: "睡眠のまとめです:",
     finalSleep: "最終睡眠時間:",
     hours: "時間",
-    goodFactors: "良い睡眠要因:",
-    badFactors: "悪い睡眠要因:",
+    goodFactors: "良い睡眠要因",
+    badFactors: "悪い睡眠要因",
+    behavior: "行動",
+    noOfHours: "時間数",
+    luckyHours: "ラッキーアワー",
     none: "なし",
     overallScore: "合計睡眠スコア:",
     playAgain: "もう一度プレイ",
@@ -183,7 +194,7 @@ const translations = {
         "nightmare": "悪夢",
         "drink_water_before_bed": "寝る前に水を飲む",
         "eat_and_sleep": "食べて寝る",
-        "lucky": "ラッキー！" // [เพิ่ม] ข้อความสำหรับการ์ด Lucky
+        "lucky": "ラッキー！"
     }
   }
 };
@@ -195,73 +206,100 @@ const getCharacterImage = (characterName, language) => {
     return imagePath ? images[imagePath].default : '';
 };
 
-const SummaryCard = ({ character, history, language }) => {
-    const t = translations[language] || translations.en; // เลือกภาษา
-    const positiveCards = history.filter(
-        action => action.targetCharacterName === character.name && action.card.type === 'add'
-    );
-    const negativeCards = history.filter(
-        action => action.targetCharacterName === character.name && action.card.type === 'subtract'
-    );
+const getAvatarImage = (avatarPath) => {
+    return avatarImages[avatarPath];
+};
 
-    // [เพิ่ม] แยกการ์ด Lucky ออกมา
-    const luckyCardUsed = history.find(
-      action => action.targetCharacterName === character.name && action.card.name === 'lucky'
-    );
+// [แก้ไข] สร้าง component ใหม่สำหรับตารางสรุป
+const SummaryTables = ({ character, history, language }) => {
+  const t = translations[language] || translations.en;
+  
+  const positiveCards = history.filter(
+    action => action.targetCharacterName === character.name && action.card.type === 'add'
+  );
+  const negativeCards = history.filter(
+    action => action.targetCharacterName === character.name && action.card.type === 'subtract'
+  );
+  const luckyCard = history.find(
+    action => action.targetCharacterName === character.name && action.card.type === 'instant_sleep'
+  );
 
-    return (
-        <div className="summary-card">
-            <div className="summary-character-image">
-                 <img src={getCharacterImage(character.name, language)} alt={character.name} />
+  return (
+    <div className="character-summary-tables">
+        <div className="character-summary-header">
+            <img src={getCharacterImage(character.name, language)} alt={character.name} className="character-image-small" />
+            <h3>{character.name}</h3>
+        </div>
+        <div className="summary-tables-row">
+            <div className="summary-table-container">
+                <div className="table-header good">
+                    <h3>{t.goodFactors}</h3>
+                </div>
+                <table className="summary-table">
+                    <thead>
+                    <tr>
+                        <th>{t.behavior}</th>
+                        <th>{t.noOfHours}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {luckyCard && (
+                        <tr>
+                            <td>{t.cardNames[luckyCard.card.name]}</td>
+                            <td>{t.luckyHours}</td>
+                        </tr>
+                    )}
+                    {positiveCards.length > 0 ? (
+                        positiveCards.map((factor, index) => (
+                            <tr key={index}>
+                                <td>{t.cardNames[factor.card.name] || factor.card.name}</td>
+                                <td>+{factor.card.value}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        !luckyCard && <tr><td colSpan="2">{t.none}</td></tr>
+                    )}
+                    </tbody>
+                </table>
             </div>
-            <h4>{character.name}</h4>
-            <p className="final-score">{t.finalSleep} {character.currentSleep} / {character.sleepGoal} {t.hours}</p>
-            
-            <div className="card-lists">
-                <div className="positive-list">
-                    <h5>{t.goodFactors}</h5>
-                    <ul>
-                        {/* [แก้ไข] แสดงผล Lucky card ก่อน */}
-                        {luckyCardUsed && (
-                          <li key="lucky">
-                            {t.cardNames['lucky']}
-                          </li>
-                        )}
-                        {positiveCards.length > 0 ? (
-                            positiveCards.map((action, i) => (
-                                <li key={i}>
-                                    +{action.card.value} {t.hours} ({t.cardNames[action.card.name] || action.card.name})
-                                </li>
-                            ))
-                        ) : (
-                            !luckyCardUsed && <li>{t.none}</li>
-                        )}
-                    </ul>
+
+            <div className="summary-table-container">
+                <div className="table-header bad">
+                    <h3>{t.badFactors}</h3>
                 </div>
-                <div className="negative-list">
-                    <h5>{t.badFactors}</h5>
-                    <ul>
-                        {negativeCards.length > 0 ? (
-                            negativeCards.map((action, i) => <li key={i}>-{action.card.value} {t.hours} ({t.cardNames[action.card.name] || action.card.name})</li>)
-                        ) : (
-                            <li>{t.none}</li>
-                        )}
-                    </ul>
-                </div>
+                <table className="summary-table">
+                    <thead>
+                    <tr>
+                        <th>{t.behavior}</th>
+                        <th>{t.noOfHours}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {negativeCards.length > 0 ? (
+                        negativeCards.map((factor, index) => (
+                            <tr key={index}>
+                                <td>{t.cardNames[factor.card.name] || factor.card.name}</td>
+                                <td>-{factor.card.value}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr><td colSpan="2">{t.none}</td></tr>
+                    )}
+                    </tbody>
+                </table>
             </div>
         </div>
-    );
+    </div>
+  );
 };
 
 
 const GameOverSummary = ({ summaryData, language }) => {
     const { winner, playHistory } = summaryData;
-    const t = translations[language] || translations.en; // เลือกภาษา
-
-    // กรองเฉพาะ Action ที่มีเป้าหมายเป็นผู้ชนะ
-    const winnerHistory = playHistory.filter(action => action.targetPlayerId === winner.id);
+    const t = translations[language] || translations.en;
     
-    // คำนวณเวลานอนทั้งหมด
+    // [แก้ไข] กรองและจัดกลุ่มข้อมูลสำหรับตาราง
+    const winnerHistory = playHistory.filter(action => action.targetPlayerId === winner.id);
     const totalSleepGoal = winner.characters.reduce((sum, char) => sum + char.sleepGoal, 0);
     const totalCurrentSleep = winner.characters.reduce((sum, char) => sum + char.currentSleep, 0);
 
@@ -271,9 +309,23 @@ const GameOverSummary = ({ summaryData, language }) => {
                 <h1>{t.congratulations}{winner.name}!</h1>
                 <p className="summary-subtitle">{t.summaryTitle}</p>
                 
-                <div className="summary-cards-container">
+                {/* [แก้ไข] แสดง Avatar ของผู้ชนะ */}
+                <div className="winner-header-overall">
+                    <img src={getAvatarImage(winner.avatar)} alt="Winner's Avatar" className="winner-avatar" />
+                    <div className="winner-details-overall">
+                        <h3>{winner.name}</h3>
+                        <p>{t.finalSleep} {totalCurrentSleep} / {totalSleepGoal} {t.hours}</p>
+                    </div>
+                </div>
+
+                <div className="all-characters-summary-container">
                     {winner.characters.map(char => (
-                        <SummaryCard key={char.name} character={char} history={winnerHistory} language={language} />
+                        <SummaryTables 
+                            key={char.name}
+                            character={char} 
+                            history={winnerHistory} 
+                            language={language}
+                        />
                     ))}
                 </div>
 

@@ -54,7 +54,7 @@ const handleActionRequest = (roomId, actionData) => {
         console.error(`Target player with ID ${targetPlayerId} not found in room ${roomId}`);
         return;
     }
-    
+
     const hasPreventCard = targetPlayer.hand.some(c => c.type === 'reaction_prevent');
 
     if (hasPreventCard && sourcePlayerId !== targetPlayerId) {
@@ -73,7 +73,7 @@ const endTurn = (roomId) => {
     if (!room || !room.gameState) return;
     const state = room.gameState;
     const currentPlayer = state.players[state.currentPlayerIndex];
-    
+
     if (currentPlayer.hand.length < 5) {
         let cardsToDraw = 5 - currentPlayer.hand.length;
         for(let i = 0; i < cardsToDraw; i++) {
@@ -102,7 +102,7 @@ function executeAction(roomId, actionData) {
     if (!room || !room.gameState) return;
     const state = room.gameState;
     const { card, sourcePlayerId, targetPlayerId, targetCharacterName } = actionData;
-    
+
     const sourcePlayer = state.players.find(p => p.id === sourcePlayerId);
     const targetPlayer = state.players.find(p => p.id === targetPlayerId);
 
@@ -120,7 +120,7 @@ function executeAction(roomId, actionData) {
         const playedCard = sourcePlayer.hand.splice(cardIndex, 1)[0];
         state.discardPile.push(playedCard);
     }
-    
+
     switch (card.type) {
         case 'add':
             const targetCharAdd = targetPlayer.characters.find(c => c.name === targetCharacterName);
@@ -158,7 +158,7 @@ function executeAction(roomId, actionData) {
     }
 
     state.log.unshift(`--- ${sourcePlayer.name} used ${card.name} on ${targetPlayer.name}! ---`);
-    
+
     state.players.forEach(p => {
         p.sleptCharacters = p.characters.filter(c => c.sleepGoal > 0 && c.currentSleep === c.sleepGoal).length;
         if(p.sleptCharacters >= 3) {
@@ -213,7 +213,6 @@ io.on('connection', (socket) => {
     }
   });
 
-  // [เพิ่ม] listener สำหรับ add_bot
   socket.on('add_bot', (data) => {
     const { roomId } = data;
     const room = rooms[roomId];
@@ -225,7 +224,7 @@ io.on('connection', (socket) => {
         socket.emit('error_message', 'You cannot add a bot to this room.');
     }
   });
-  
+
   const checkAndStartGame = (roomId) => {
     const room = rooms[roomId];
     if (!room) return;
@@ -244,42 +243,30 @@ io.on('connection', (socket) => {
             turnVersion: 0,
         };
         
-        let playerCounter = 1;
-        let botCounter = 1;
-        const usedAvatars = new Set();
-        const availableAvatars = [...avatarImages];
-
+        const botAvatars = {
+            1: '/src/assets/avatar/Avatar_01_dugong.png',
+            2: '/src/assets/avatar/Avatar_02_rabbit.png',
+            3: '/src/assets/avatar/Avatar_03_squirrel.png',
+        };
 
         room.players.forEach(player => {
             gameState.players.push({
                 ...player,
-                name: `Player ${playerCounter++}`,
+                name: `Player ${gameState.players.length + 1}`,
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });
-            if (player.avatar) {
-                usedAvatars.add(player.avatar);
-            }
         });
 
         for(let i = 0; i < room.bots; i++) {
-            let randomAvatar;
-            const remainingAvatars = availableAvatars.filter(avatar => !usedAvatars.has(avatar));
-
-            if (remainingAvatars.length > 0) {
-                randomAvatar = remainingAvatars[Math.floor(Math.random() * remainingAvatars.length)];
-            } else {
-                // If all avatars are used, randomly pick one that's already in use
-                randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
-            }
-            
-            usedAvatars.add(randomAvatar);
+            const botNumber = i + 1;
+            const botAvatar = botAvatars[botNumber] || '/src/assets/avatar/Avatar_01_dugong.png'; // ใช้รูป dugong เป็นค่า default ถ้าไม่มีรูปสำหรับบอทตัวนั้น
 
             gameState.players.push({
-                id: `bot-${i+1}`, 
-                name: `Bot ${botCounter++}`,
+                id: `bot-${i+1}`,
+                name: `Bot ${i + 1}`,
                 isBot: true,
-                avatar: randomAvatar,
+                avatar: botAvatar,
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });
@@ -292,7 +279,7 @@ io.on('connection', (socket) => {
         }
     }
   };
-  
+
   socket.on('play_card', (data) => handleActionRequest(data.roomId, { ...data, sourcePlayerId: socket.id }));
   socket.on('steal_cards', (data) => handleActionRequest(data.roomId, { ...data, sourcePlayerId: socket.id }));
   socket.on('swap_cards', (data) => handleActionRequest(data.roomId, { ...data, sourcePlayerId: socket.id }));
@@ -312,7 +299,7 @@ io.on('connection', (socket) => {
         if (preventCardIndex > -1) {
             const preventCard = targetPlayer.hand.splice(preventCardIndex, 1)[0];
             state.discardPile.push(preventCard);
-            
+
             const hasCounterCard = sourcePlayer.hand.some(c => c.type === 'reaction_counter');
             if (hasCounterCard) {
                 pendingActions[roomId].stage = 'counter';
@@ -341,7 +328,7 @@ io.on('connection', (socket) => {
     const { roomId, useCard } = data;
     const pendingAction = pendingActions[roomId];
     if (!pendingAction || pendingAction.stage !== 'counter') return;
-    
+
     const { actionData } = pendingAction;
     const state = rooms[roomId].gameState;
     const sourcePlayer = state.players.find(p => p.id === socket.id);

@@ -6,24 +6,15 @@
   border-radius: 15px;
   color: #333;
   text-align: center;
-  max-width: 600px;
+  max-width: 1000px; /* ขยายความกว้างสูงสุดให้รูปภาพ */
   width: 90%;
 }
 
-.how-to-play-container h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.how-to-play-container ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0 0 2rem 0;
-}
-
-.how-to-play-container li {
-  margin-bottom: 0.5rem;
-  font-size: 1.1rem;
+.how-to-play-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
 }
 
 .how-to-play-container .back-button {
