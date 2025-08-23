@@ -12,7 +12,8 @@ import JoinGame from './components/JoinGame';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import GameOverSummary from './components/GameOverSummary';
 import GameLogo from './components/GameLogo';
-import HowToPlay from './components/HowToPlay'; // [เพิ่ม] import HowToPlay component
+import HowToPlay from './components/HowToPlay';
+import AvatarSelection from './components/AvatarSelection'; // [เพิ่ม] import AvatarSelection component
 
 const socket = io("http://localhost:3001");
 // const socket = io("http://10.30.16.104:3001"); 
@@ -25,7 +26,8 @@ function App() {
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [numBots, setNumBots] = useState(0);
   const [language, setLanguage] = useState('en');
-
+  const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01_dugong.png'); // [เพิ่ม] State สำหรับเก็บ Avatar ของผู้เล่น
+  
   useEffect(() => {
     socket.on('room_created', (roomData) => {
       setRoom(roomData);
@@ -77,11 +79,13 @@ function App() {
   }, []);
 
   const handleCreateRoom = () => {
-    socket.emit('create_room', { maxPlayers, bots: numBots });
+    // [แก้ไข] ส่ง avatar ไปยัง server เมื่อสร้างห้อง
+    socket.emit('create_room', { maxPlayers, bots: numBots, avatar: myAvatar });
   };
 
   const handleJoinRoom = (roomId) => {
-    socket.emit('join_room', { roomId });
+    // [แก้ไข] ส่ง avatar ไปยัง server เมื่อเข้าร่วมห้อง
+    socket.emit('join_room', { roomId, avatar: myAvatar });
   };
 
   const handleHome = () => {
@@ -91,13 +95,21 @@ function App() {
   const handleShowHowToPlay = () => {
     setView('howToPlay');
   };
+  
+  const handleShowAvatarSelection = () => { // [เพิ่ม] ฟังก์ชันสำหรับเปลี่ยนไปหน้าเลือก Avatar
+    setView('avatar');
+  };
 
-  // --- [เพิ่ม] ฟังก์ชันสำหรับกำหนด className ---
+  const handleSelectAvatar = (avatarPath) => { // [เพิ่ม] ฟังก์ชันเมื่อเลือก Avatar
+    setMyAvatar(avatarPath);
+    setView('home'); // กลับไปหน้า Home หลังจากเลือก
+  };
+  
   const getAppClassName = () => {
     if (view === 'game' || view === 'summary') {
       return 'App app-game-background';
     }
-    if (['home', 'create', 'join', 'waiting', 'howToPlay'].includes(view)) {
+    if (['home', 'create', 'join', 'waiting', 'howToPlay', 'avatar'].includes(view)) {
       return 'App app-home-background';
     }
     return 'App';
@@ -106,9 +118,18 @@ function App() {
   const renderContent = () => {
     switch (view) {
       case 'home':
-        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} onShowHowToPlay={handleShowHowToPlay} language={language} />;
+        return <Home 
+          onStartGame={() => setView('create')} 
+          onJoinGame={() => setView('join')} 
+          onShowHowToPlay={handleShowHowToPlay} 
+          onShowAvatarSelection={handleShowAvatarSelection} // [เพิ่ม] ส่ง prop สำหรับเปลี่ยนหน้า
+          language={language} 
+          myAvatar={myAvatar} // [เพิ่ม] ส่ง avatar ที่เลือกไปแสดงที่ Home
+        />;
       case 'howToPlay':
         return <HowToPlay language={language} onBack={handleHome} />;
+      case 'avatar': // [เพิ่ม] case สำหรับหน้า Avatar
+        return <AvatarSelection onSelectAvatar={handleSelectAvatar} onBack={handleHome} myAvatar={myAvatar} />;
       case 'join':
         return <JoinGame onJoin={handleJoinRoom} onBack={handleHome} />;
       case 'create':
@@ -162,13 +183,13 @@ function App() {
         if (!summaryData) return null;
         return <GameOverSummary summaryData={summaryData} language={language} />;
       default:
-        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} onShowHowToPlay={handleShowHowToPlay} language={language} />;
+        return <Home onStartGame={() => setView('create')} onJoinGame={() => setView('join')} onShowHowToPlay={handleShowHowToPlay} onShowAvatarSelection={handleShowAvatarSelection} language={language} myAvatar={myAvatar} />;
     }
   };
   
   return (
     <div className={getAppClassName()}>
-      {['home', 'create', 'join', 'waiting', 'howToPlay'].includes(view) && <GameLogo language={language} />}
+      {['home', 'create', 'join', 'waiting', 'howToPlay', 'avatar'].includes(view) && <GameLogo language={language} />}
       {view !== 'summary' && <LanguageSwitcher currentLang={language} onLangChange={setLanguage} />}
       {renderContent()}
     </div>

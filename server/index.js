@@ -17,6 +17,23 @@ const io = new Server(server, {
 const rooms = {};
 const pendingActions = {};
 
+const avatarImages = [
+    '/src/assets/avatar/Avatar_01_dugong.png',
+    '/src/assets/avatar/Avatar_02_rabbit.png',
+    '/src/assets/avatar/Avatar_03_squirrel.png',
+    '/src/assets/avatar/Avatar_04_rooster.png',
+    '/src/assets/avatar/Avatar_05_basketball_player.png',
+    '/src/assets/avatar/Avatar_06_a_man.png',
+    '/src/assets/avatar/Avatar_07_yellow_lady.png',
+    '/src/assets/avatar/Avatar_08_lady.png',
+    '/src/assets/avatar/Avatar_09_witch.png',
+    '/src/assets/avatar/Avatar_10_boxman.png',
+    '/src/assets/avatar/Avatar_11_mushroom_boy.png',
+    '/src/assets/avatar/Avatar_12_flower_lion.png',
+    '/src/assets/avatar/Avatar_13_dinosaur.png',
+    '/src/assets/avatar/Avatar_14_lion.png',
+];
+
 function generateRoomId(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -161,7 +178,7 @@ io.on('connection', (socket) => {
   console.log(`User Connected: ${socket.id}`);
 
   socket.on('create_room', (data) => {
-    const { maxPlayers, bots } = data;
+    const { maxPlayers, bots, avatar } = data;
     let roomId;
     do {
         roomId = generateRoomId(4);
@@ -169,7 +186,7 @@ io.on('connection', (socket) => {
 
     rooms[roomId] = {
       id: roomId,
-      players: [{ id: socket.id, name: `Player 1` }],
+      players: [{ id: socket.id, name: `Player 1`, avatar }],
       bots: bots || 0, maxPlayers: parseInt(maxPlayers),
     };
     socket.join(roomId);
@@ -178,12 +195,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join_room', (data) => {
-    const { roomId } = data;
+    const { roomId, avatar } = data;
     const room = rooms[roomId];
     if (room && !room.gameState) {
         if (room.players.length + room.bots < room.maxPlayers) {
             const playerNumber = room.players.length + 1;
-            room.players.push({ id: socket.id, name: `Player ${playerNumber}` });
+            room.players.push({ id: socket.id, name: `Player ${playerNumber}`, avatar });
             socket.join(roomId);
             socket.emit('room_joined', room);
             io.to(roomId).emit('room_updated', room);
@@ -229,6 +246,9 @@ io.on('connection', (socket) => {
         
         let playerCounter = 1;
         let botCounter = 1;
+        const usedAvatars = new Set();
+        const availableAvatars = [...avatarImages];
+
 
         room.players.forEach(player => {
             gameState.players.push({
@@ -237,13 +257,29 @@ io.on('connection', (socket) => {
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });
+            if (player.avatar) {
+                usedAvatars.add(player.avatar);
+            }
         });
 
         for(let i = 0; i < room.bots; i++) {
-             gameState.players.push({
+            let randomAvatar;
+            const remainingAvatars = availableAvatars.filter(avatar => !usedAvatars.has(avatar));
+
+            if (remainingAvatars.length > 0) {
+                randomAvatar = remainingAvatars[Math.floor(Math.random() * remainingAvatars.length)];
+            } else {
+                // If all avatars are used, randomly pick one that's already in use
+                randomAvatar = availableAvatars[Math.floor(Math.random() * availableAvatars.length)];
+            }
+            
+            usedAvatars.add(randomAvatar);
+
+            gameState.players.push({
                 id: `bot-${i+1}`, 
                 name: `Bot ${botCounter++}`,
                 isBot: true,
+                avatar: randomAvatar,
                 characters: shuffledChars.splice(0, 3).map(char => ({ ...char, currentSleep: 0 })),
                 hand: gameState.deck.splice(0, 5), sleptCharacters: 0,
             });

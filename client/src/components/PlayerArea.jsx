@@ -7,7 +7,13 @@ import DroppableCharacterCard from './DroppableCharacterCard';
 const PlayerArea = ({ player, isMyArea, onCardDrop, isMyTurn, language, onSpecialCardClick, floatingTexts = [] }) => {
     return (
         <div className={`player-area ${isMyArea ? 'my-player-area' : 'opponent-player-area'}`}>
-            <h3>{player.name} (Slept: {player.sleptCharacters}/3)</h3>
+            <div className="player-header">
+                {/* [เพิ่ม] แสดง Avatar ของผู้เล่น */}
+                <div className="player-avatar-container">
+                    <img src={player.avatar} alt={`${player.name}'s avatar`} className="player-avatar" />
+                </div>
+                <h3>{player.name} (Slept: {player.sleptCharacters}/3)</h3>
+            </div>
             <div className="characters">
                 {player.characters.map(char => (
                     <DroppableCharacterCard

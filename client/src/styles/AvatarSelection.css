@@ -1,0 +1,63 @@
+/* client/src/styles/AvatarSelection.css */
+
+.avatar-preview-container {
+    position: fixed; /* [แก้ไข] ใช้ fixed เพื่อให้ลอยอยู่บนสุดเมื่อ scroll */
+    bottom: 1rem; /* [แก้ไข] วางที่มุมล่าง */
+    left: 1rem; /* [แก้ไข] วางที่มุมซ้าย */
+    transform: none; /* [แก้ไข] ลบ transform เดิมออก */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: default;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: none;
+}
+
+.avatar-preview-img {
+    width: 100px; /* [แก้ไข] ปรับขนาดให้เล็กลง */
+    height: 100px; /* [แก้ไข] ปรับขนาดให้เล็กลง */
+    border-radius: 50%;
+    border: 3px solid #007bff;
+}
+
+.avatar-selection-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 15px;
+  max-width: 800px;
+  width: 90%;
+  color: #333;
+}
+
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.avatar-image {
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.avatar-image:hover {
+    transform: scale(1.1);
+    border-color: #007bff;
+}
+
+.avatar-image.selected {
+    border-color: #28a745;
+    box-shadow: 0 0 10px #28a745;
+}
