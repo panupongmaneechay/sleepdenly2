@@ -26,7 +26,7 @@ function App() {
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [numBots, setNumBots] = useState(0);
   const [language, setLanguage] = useState('en');
-  const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01_dugong.png'); // [เพิ่ม] State สำหรับเก็บ Avatar ของผู้เล่น
+  const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01.png'); // [เพิ่ม] State สำหรับเก็บ Avatar ของผู้เล่น
   
   useEffect(() => {
     socket.on('room_created', (roomData) => {
