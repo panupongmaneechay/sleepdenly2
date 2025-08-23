@@ -13,9 +13,8 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import GameOverSummary from './components/GameOverSummary';
 import GameLogo from './components/GameLogo';
 
-// const socket = io("http://localhost:3001");
-// const socket = io("http://192.168.1.102:3001"); 
-const socket = io("http://10.30.16.104:3001"); 
+const socket = io("http://localhost:3001");
+// const socket = io("http://10.30.16.104:3001"); 
 
 function App() {
   const [view, setView] = useState('home');
