@@ -15,8 +15,8 @@ import GameLogo from './components/GameLogo';
 import HowToPlay from './components/HowToPlay';
 import AvatarSelection from './components/AvatarSelection'; // [เพิ่ม] import AvatarSelection component
 
-const socket = io("http://localhost:3001");
-// const socket = io("http://10.30.16.104:3001"); 
+// const socket = io("http://localhost:3001");
+const socket = io("http://10.30.16.104:3001"); 
 
 function App() {
   const [view, setView] = useState('home');
