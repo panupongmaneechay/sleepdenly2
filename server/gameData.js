@@ -91,32 +91,44 @@ const shuffleDeck = (deck) => {
     return deck.sort(() => Math.random() - 0.5);
 };
 
+// [แก้ไข] ฟังก์ชันสร้าง Deck ใหม่ตามอัตราส่วนที่กำหนด
 const createDeckFromRarity = () => {
     const deck = [];
-    const totalDeckSize = 100; // กำหนดขนาดกองการ์ดโดยประมาณ
+    const totalDeckSize = 100; // สร้าง Deck ขนาด 100 ใบ
 
-    const cardsByRarity = {
-        common: actionCards.filter(c => c.rarity === 'common'),
-        uncommon: actionCards.filter(c => c.rarity === 'uncommon'),
-        rare: actionCards.filter(c => c.rarity === 'rare')
+    const cardTypes = {
+        add: actionCards.filter(c => c.type === 'add'),
+        subtract: actionCards.filter(c => c.type === 'subtract'),
+        special_steal: actionCards.filter(c => c.type === 'special_steal'),
+        special_swap: actionCards.filter(c => c.type === 'special_swap'),
+        reaction_prevent: actionCards.filter(c => c.type === 'reaction_prevent'),
+        reaction_counter: actionCards.filter(c => c.type === 'reaction_counter'),
+        instant_sleep: actionCards.filter(c => c.type === 'instant_sleep')
     };
 
+    // กำหนดจำนวนการ์ดแต่ละประเภทใน Deck 100 ใบ (ปรับตัวเลขให้ใกล้เคียงที่สุด)
     const cardCounts = {
-        common: Math.round(totalDeckSize * 0.85),
-        uncommon: Math.round(totalDeckSize * 0.13),
-        rare: Math.round(totalDeckSize * 0.07)
+        add: 41,                 // ~80% weight
+        subtract: 36,            // ~70% weight
+        reaction_prevent: 6,     // ~15% weight
+        special_swap: 5,         // ~10% weight
+        reaction_counter: 4,     // ~8% weight
+        special_steal: 2,        // ~5% weight
+        instant_sleep: 3         // ~5% weight
     };
+    // Total = 100 cards
 
-    for (const rarity in cardsByRarity) {
-        const specificCards = cardsByRarity[rarity];
-        if (specificCards.length === 0) continue;
+    let cardIdCounter = 0;
+    for (const type in cardTypes) {
+        const cardsOfType = cardTypes[type];
+        if (cardsOfType.length === 0) continue;
 
-        const totalCopies = cardCounts[rarity];
+        const totalCopies = cardCounts[type];
         
-        // เพิ่มการ์ดแต่ละใบใน rarity นั้นๆ เข้าไปในกองการ์ดวนไปเรื่อยๆ จนกว่าจะครบตามจำนวนที่คำนวณไว้
+        // เพิ่มการ์ดแต่ละใบในประเภทนั้นๆ วนไปเรื่อยๆ จนครบจำนวนที่กำหนด
         for (let i = 0; i < totalCopies; i++) {
-            const cardTemplate = specificCards[i % specificCards.length];
-            deck.push({ ...cardTemplate, id: `${cardTemplate.name}_${i}` });
+            const cardTemplate = cardsOfType[i % cardsOfType.length];
+            deck.push({ ...cardTemplate, id: `${cardTemplate.name}_${cardIdCounter++}` });
         }
     }
 
