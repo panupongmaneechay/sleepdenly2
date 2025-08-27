@@ -61,7 +61,7 @@ const Home = ({ onStartGame, onJoinGame, onShowHowToPlay, onShowAvatarSelection,
         <img src={myAvatar} alt="My Avatar" className="avatar-preview-img" />
       </div>
       
-      <h1 className="home-title">{t.title}</h1>
+      {/* <h1 className="home-title">{t.title}</h1> */}
       <div className="home-menu">
         <button onClick={onStartGame} className="menu-button">
           {t.start}

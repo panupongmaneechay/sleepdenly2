@@ -17,14 +17,22 @@ const buttonTexts = {
   jp: '戻る', // เพิ่มภาษาญี่ปุ่นเป็นตัวเลือกเผื่อไว้
 };
 
+const helpTexts = {
+  en: 'Zoom the screen (PC): Hold CTRL + or -',
+  th: 'ขยายหน้าจอ (PC) CTRL ค้าง + หรือ -',
+  jp: '画面をズーム（PC): CTRLキーを押しながら「-」キーを押す', // เพิ่มภาษาญี่ปุ่นเป็นตัวเลือกเผื่อไว้
+};
+
 const HowToPlay = ({ language, onBack }) => {
   const imageUrl = howToPlayImages[language] || howToPlayImages.en; // ใช้รูปภาพตามภาษาที่เลือก
   const buttonText = buttonTexts[language] || buttonTexts.en; // [แก้ไข] ใช้ข้อความปุ่มตามภาษาที่เลือก
+  const helpText = helpTexts[language] || helpTexts.en;
 
   return (
     <div className="how-to-play-container">
       <img src={imageUrl} alt="How to Play" className="how-to-play-image" />
       {/* [แก้ไข] แสดงข้อความจากตัวแปร buttonText */}
+      <h2>{helpText}</h2>
       <button onClick={onBack} className="back-button">
         {buttonText}
       </button>

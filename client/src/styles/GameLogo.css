@@ -4,7 +4,7 @@
   position: absolute;
   top: 8rem;
   left: 30rem;
-  z-index: 100; /* ให้อยู่เหนือองค์ประกอบอื่น */
+  z-index: 1; /* ให้อยู่เหนือองค์ประกอบอื่น */
 }
 
 .game-logo {
