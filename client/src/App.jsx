@@ -13,10 +13,35 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import GameOverSummary from './components/GameOverSummary';
 import GameLogo from './components/GameLogo';
 import HowToPlay from './components/HowToPlay';
-import AvatarSelection from './components/AvatarSelection'; // [เพิ่ม] import AvatarSelection component
+import AvatarSelection from './components/AvatarSelection';
 
 const socket = io("http://localhost:3001");
 // const socket = io("http://10.30.16.104:3001"); 
+
+// [เพิ่ม] ชุดข้อความสำหรับแปลภาษาในหน้าสร้างห้อง
+const translations = {
+  en: {
+    createTitle: 'Create a Room',
+    roomSize: 'Room Size:',
+    numBots: 'Number of Bots:',
+    createButton: 'Create Room',
+    backButton: 'Back'
+  },
+  th: {
+    createTitle: 'สร้างห้อง',
+    roomSize: 'ขนาดห้อง:',
+    numBots: 'จำนวนบอท:',
+    createButton: 'สร้างห้อง',
+    backButton: 'ย้อนกลับ'
+  },
+  jp: {
+    createTitle: 'ルームを作成',
+    roomSize: 'ルームサイズ:',
+    numBots: 'ボット数:',
+    createButton: 'ルーム作成',
+    backButton: '戻る'
+  }
+};
 
 function App() {
   const [view, setView] = useState('home');
@@ -26,7 +51,7 @@ function App() {
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [numBots, setNumBots] = useState(0);
   const [language, setLanguage] = useState('en');
-  const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01.png'); // [เพิ่ม] State สำหรับเก็บ Avatar ของผู้เล่น
+  const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01.png');
   
   useEffect(() => {
     socket.on('room_created', (roomData) => {
@@ -79,12 +104,10 @@ function App() {
   }, []);
 
   const handleCreateRoom = () => {
-    // [แก้ไข] ส่ง avatar ไปยัง server เมื่อสร้างห้อง
     socket.emit('create_room', { maxPlayers, bots: numBots, avatar: myAvatar });
   };
 
   const handleJoinRoom = (roomId) => {
-    // [แก้ไข] ส่ง avatar ไปยัง server เมื่อเข้าร่วมห้อง
     socket.emit('join_room', { roomId, avatar: myAvatar });
   };
 
@@ -96,13 +119,13 @@ function App() {
     setView('howToPlay');
   };
   
-  const handleShowAvatarSelection = () => { // [เพิ่ม] ฟังก์ชันสำหรับเปลี่ยนไปหน้าเลือก Avatar
+  const handleShowAvatarSelection = () => {
     setView('avatar');
   };
 
-  const handleSelectAvatar = (avatarPath) => { // [เพิ่ม] ฟังก์ชันเมื่อเลือก Avatar
+  const handleSelectAvatar = (avatarPath) => {
     setMyAvatar(avatarPath);
-    setView('home'); // กลับไปหน้า Home หลังจากเลือก
+    setView('home');
   };
   
   const getAppClassName = () => {
@@ -122,22 +145,25 @@ function App() {
           onStartGame={() => setView('create')} 
           onJoinGame={() => setView('join')} 
           onShowHowToPlay={handleShowHowToPlay} 
-          onShowAvatarSelection={handleShowAvatarSelection} // [เพิ่ม] ส่ง prop สำหรับเปลี่ยนหน้า
+          onShowAvatarSelection={handleShowAvatarSelection}
           language={language} 
-          myAvatar={myAvatar} // [เพิ่ม] ส่ง avatar ที่เลือกไปแสดงที่ Home
+          myAvatar={myAvatar}
         />;
       case 'howToPlay':
         return <HowToPlay language={language} onBack={handleHome} />;
-      case 'avatar': // [เพิ่ม] case สำหรับหน้า Avatar
+      case 'avatar':
         return <AvatarSelection onSelectAvatar={handleSelectAvatar} onBack={handleHome} myAvatar={myAvatar} />;
       case 'join':
         return <JoinGame onJoin={handleJoinRoom} onBack={handleHome} />;
       case 'create':
+        // [แก้ไข] ดึงชุดข้อความที่ถูกต้องตามภาษาที่เลือก
+        const t = translations[language] || translations.en;
         return (
             <div className="create-room-form">
-              <h2>Create a Room</h2>
+              {/* [แก้ไข] เปลี่ยนข้อความ Hardcode เป็นตัวแปร */}
+              <h2>{t.createTitle}</h2>
               <div className="form-group">
-                <label htmlFor="room-size">Room Size:</label>
+                <label htmlFor="room-size">{t.roomSize}</label>
                 <select id="room-size" value={maxPlayers} onChange={(e) => setMaxPlayers(parseInt(e.target.value))}>
                   <option value="2">2</option>
                   <option value="3">3</option>
@@ -145,15 +171,15 @@ function App() {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="bot-count">Number of Bots:</label>
+                <label htmlFor="bot-count">{t.numBots}</label>
                 <select id="bot-count" value={numBots} onChange={(e) => setNumBots(parseInt(e.target.value))}>
                   {Array.from({ length: maxPlayers }, (_, i) => (
                     <option key={i} value={i}>{i}</option>
                   ))}
                 </select>
               </div>
-              <button onClick={handleCreateRoom} className="create-button">Create Room</button>
-              <button onClick={() => setView('home')} className="back-button" style={{marginLeft: '10px', backgroundColor: '#6c757d'}}>Back</button>
+              <button onClick={handleCreateRoom} className="create-button">{t.createButton}</button>
+              <button onClick={() => setView('home')} className="back-button" style={{marginLeft: '10px', backgroundColor: '#6c757d'}}>{t.backButton}</button>
             </div>
         );
       case 'waiting':
