@@ -167,6 +167,7 @@ const Game = ({ gameState, myId, socket, language }) => {
                 
                 <div className="center-controls">
                     <div className="turn-indicator">
+                        <img src={currentPlayer.avatar} alt={`${currentPlayer.name}'s turn`} className="turn-indicator-avatar" />
                         <h2>Turn: {currentPlayer.name}</h2>
                         {isMyTurn && (
                             <button className="end-turn-image-button" onClick={handleEndTurn}>
