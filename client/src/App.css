@@ -280,7 +280,6 @@ ul {
   text-shadow: none;
 }
 
-/* [แก้ไข] ลบ bottom, left และเพิ่ม user-select */
 .action-hand-container {
   position: fixed;
   width: 600px;
@@ -303,7 +302,7 @@ ul {
   border-bottom: 1px solid #666;
   text-align: center;
   font-size: 1.1rem;
-  cursor: move; /* เพิ่ม cursor เพื่อบอกว่าลากได้ */
+  cursor: move;
 }
 
 .action-cards {
@@ -335,7 +334,7 @@ ul {
 
 .action-cards .action-card.image-action-card:not(.is-dragging):hover {
   transform: translateY(-50px) scale(1.7) !important;
-  z-index: 102; 
+  z-index: 102;
   border-color: #007bff;
   box-shadow: 0 8px 16px rgba(0,0,0,0.7);
 }
@@ -427,4 +426,42 @@ ul {
   font-size: 1rem;
   font-weight: bold;
   box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+/* === [เพิ่ม] สไตล์สำหรับ Layout 4 คนโดยเฉพาะ === */
+.layout-4p .player-area {
+    padding: 0.5rem;
+}
+
+.layout-4p .player-header {
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.layout-4p .player-avatar-container {
+    width: 100px;
+    height: 100px;
+}
+
+.layout-4p .player-area h3 {
+    font-size: 0.9rem; /* ลดขนาดฟอนต์ชื่อผู้เล่น */
+}
+
+.layout-4p .characters {
+    gap: 0.5rem; /* ลดระยะห่างระหว่างการ์ดตัวละคร */
+    margin-bottom: 0.5rem;
+}
+
+.layout-4p .character-card.image-based-card {
+    width: 128px;   /* ย่อขนาดการ์ดประมาณ 75% */
+    height: 210px;
+}
+
+.layout-4p .sleep-details {
+    gap: 0.2rem;
+}
+
+.layout-4p .sleep-status-text {
+    font-size: 0.9rem; /* ลดขนาดฟอนต์เวลานอน */
+    padding: 1px 6px;
 }
