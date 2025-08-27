@@ -65,7 +65,6 @@
   margin: 0;
 }
 
-/* [เพิ่ม] สไตล์ใหม่สำหรับตารางสรุปของแต่ละตัวละคร */
 .all-characters-summary-container {
     display: flex;
     flex-direction: column;
@@ -103,7 +102,7 @@
 .summary-tables-row {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 1.5rem; /* เพิ่มระยะห่างระหว่างตาราง */
 }
 
 .summary-table-container {
@@ -120,7 +119,7 @@
 
 .summary-table-container .table-header {
   color: white;
-  padding: 0.5rem;
+  padding: 0.75rem; /* เพิ่ม padding */
 }
 
 .summary-table-container .table-header.good {
@@ -133,12 +132,29 @@
 
 .summary-table-container .table-header h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.3rem; /* ขยายหัวข้อตารางเล็กน้อย */
 }
 
+/* [แก้ไข] ปรับปรุงสไตล์ตารางตรงนี้ */
 .summary-table th, .summary-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 12px 8px; /* เพิ่ม padding แนวตั้ง */
+  font-size: 1.6rem;
+  vertical-align: middle; /* จัดให้อยู่กลางแนวตั้ง */
+}
+
+.summary-table th {
+    text-align: center; /* จัดหัวตารางให้อยู่ตรงกลาง */
+}
+
+.summary-table td:first-child {
+  width: 75%; /* ทำให้คอลัมน์แรกกว้างขึ้น */
+  text-align: left; /* จัดข้อความชิดซ้าย */
+  padding-left: 1.5rem; /* เพิ่มระยะห่างด้านซ้าย */
+}
+
+.summary-table td:last-child {
+  width: 25%; /* ทำให้คอลัมน์ที่สองแคบลง */
   text-align: center;
 }
 
