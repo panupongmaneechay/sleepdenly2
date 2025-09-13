@@ -51,6 +51,8 @@ const actionCards = [
     { name: 'good_income', description: '+2 hour of sleep (for 15 years old)', type: 'add', value: 2,rarity: 'common',condition: { age: 15 }, key: 'good_income'},
     { name: 'drink_alcohol', description: '+2 hour of sleep (for 18 years old)', type: 'add', value: 2,rarity: 'common',condition: { age: 18 }, key: 'drink_alcohol'},
     { name: 'listen_music', description: '+2 hour of sleep', type: 'add', value: 2, rarity: 'common', key: 'listen_music' },
+    { name: 'eat_sweet_almonds', description: '+2 hour of sleep', type: 'add', value: 2, rarity: 'common', key: 'eat_sweet_almonds' },
+    { name: 'eat_kiwi', description: '+2 hour of sleep', type: 'add', value: 2, rarity: 'common', key: 'eat_kiwi' },
     { name: 'eye_patch', description: '+2 hour of sleep', type: 'add', value: 2, rarity: 'common', key: 'eye_patch' },
     { name: 'drink_warm_milk', description: '+1 hour of sleep', type: 'add', value: 1, rarity: 'common', key: 'drink_warm_milk' },
     { name: 'eat_banana', description: '+1 hour of sleep', type: 'add', value: 1, rarity: 'common', key: 'eat_banana' },
