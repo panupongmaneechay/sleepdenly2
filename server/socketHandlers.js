@@ -36,8 +36,12 @@ function initializeSocketHandlers(io) {
                     const hasCounterCard = sourcePlayer.hand.some(c => c.type === 'reaction_counter');
                     if (hasCounterCard) {
                         pendingActions[roomId].stage = 'counter';
+                        // [แก้ไข] เปลี่ยน message เป็น key และ placeholders
                         io.to(sourcePlayer.id).emit('counter_request', {
-                            message: `${targetPlayer.name} used Prevent. Use Break Down Defenses?`
+                            messageKey: 'useCounterCard',
+                            placeholders: {
+                                playerName: targetPlayer.name
+                            }
                         });
                     } else {
                         const sourceCardIndex = sourcePlayer.hand.findIndex(c => c.id === actionData.card.id);

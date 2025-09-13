@@ -16,6 +16,7 @@ const translations = {
         "Manatee Jitanan",
         "Kitsana Waiyamai",
         "Panupong Maneechay",
+        "Tanyakorn Charuthat",
         "Pornchan Lojanasupareuk",
         "Thananun Thanarachataphoom"
     ]
@@ -28,11 +29,12 @@ const translations = {
     changeAvatar: 'เปลี่ยนอวตาร',
     creators: 'ผู้พัฒนา',
     creatorNames: [
-        "Manatee Jitanan",
-        "Kitsana Waiyamai",
-        "Panupong Maneechay",
-        "Pornchan Lojanasupareuk",
-        "Thananun Thanarachataphoom"
+        "มนธีร์ จิตต์อนันต์",
+        "กฤษณะ ไวยมัย",
+        "ภานุพงศ์ มณีฉาย",
+        "ธัญกร จารุทัศน์",
+        "พรจันทร์ โลจนะศุภฤกษ์",
+        "ธนนันท์ ธนารัชตะภูมิ"
     ]
   },
   jp: {
@@ -41,13 +43,14 @@ const translations = {
     join: 'ゲームに参加',
     howToPlay: '遊び方',
     changeAvatar: 'アバターを変更',
-    creators: '開発者',
+    creators: '創造者たち',
     creatorNames: [
-        "Manatee Jitanan",
-        "Kitsana Waiyamai",
-        "Panupong Maneechay",
-        "Pornchan Lojanasupareuk",
-        "Thananun Thanarachataphoom"
+        "マナティー・ジタナン",
+        "キッサナー・ワイヤマイ",
+        "パヌポン・マニーチャイ",
+        "タンヤコン・チャルタット",
+        "タンヤゴーン  ジャルタス",
+        "ポーンチャン・ロジャナスパルーク"
     ]
   }
 };

@@ -20,7 +20,11 @@ const handleActionRequest = (roomId, actionData, io) => {
     if (hasPreventCard && sourcePlayerId !== targetPlayerId && !targetPlayer.isBot) {
         pendingActions[roomId] = { actionData, stage: 'prevention' };
         io.to(targetPlayer.id).emit('action_request', {
-            message: `${sourcePlayer.name} is using ${card.name} on you. Use Prevent?`,
+            messageKey: 'useCardOnYou',
+            placeholders: {
+                playerName: sourcePlayer.name,
+                cardNameKey: card.key,
+            },
             actionData
         });
     } else {

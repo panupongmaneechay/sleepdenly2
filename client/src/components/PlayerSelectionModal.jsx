@@ -3,7 +3,7 @@
 import React from 'react';
 import '../styles/PlayerSelectionModal.css';
 
-const PlayerSelectionModal = ({ players, onSelectPlayer, onCancel, title }) => {
+const PlayerSelectionModal = ({ players, onSelectPlayer, onCancel, title, cancelText }) => {
   return (
     <div className="modal-backdrop">
       <div className="modal-content">
@@ -19,7 +19,8 @@ const PlayerSelectionModal = ({ players, onSelectPlayer, onCancel, title }) => {
             </button>
           ))}
         </div>
-        <button className="cancel-button" onClick={onCancel}>Cancel</button>
+        {/* [แก้ไข] เปลี่ยนข้อความ Hardcode เป็น prop */}
+        <button className="cancel-button" onClick={onCancel}>{cancelText || 'Cancel'}</button>
       </div>
     </div>
   );
