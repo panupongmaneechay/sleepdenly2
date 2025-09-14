@@ -34,16 +34,27 @@ function initializeSocketHandlers(io) {
                     state.discardPile.push(preventCard);
 
                     const hasCounterCard = sourcePlayer.hand.some(c => c.type === 'reaction_counter');
-                    if (hasCounterCard) {
+                    if (hasCounterCard && !sourcePlayer.isBot) { // [แก้ไข] เพิ่มเงื่อนไข !sourcePlayer.isBot
                         pendingActions[roomId].stage = 'counter';
-                        // [แก้ไข] เปลี่ยน message เป็น key และ placeholders
                         io.to(sourcePlayer.id).emit('counter_request', {
                             messageKey: 'useCounterCard',
                             placeholders: {
                                 playerName: targetPlayer.name
                             }
                         });
-                    } else {
+                    } else if (hasCounterCard && sourcePlayer.isBot) {
+                        // [เพิ่ม] Logic สำหรับบอทให้ตัดสินใจใช้ counter อัตโนมัติ
+                        const counterCardIndex = sourcePlayer.hand.findIndex(c => c.type === 'reaction_counter');
+                        if (counterCardIndex > -1) {
+                            const counterCard = sourcePlayer.hand.splice(counterCardIndex, 1)[0];
+                            state.discardPile.push(counterCard);
+                            state.log.unshift(`--- ${sourcePlayer.name} broke the defense! ---`);
+                            executeAction(roomId, actionData, io);
+                        }
+                        // ไม่ว่าบอทจะใช้หรือไม่ ก็ต้องเคลียร์ pending action
+                        delete pendingActions[roomId];
+                    }
+                    else {
                         const sourceCardIndex = sourcePlayer.hand.findIndex(c => c.id === actionData.card.id);
                          if (sourceCardIndex > -1) {
                             const playedCard = sourcePlayer.hand.splice(sourceCardIndex, 1)[0];
@@ -93,7 +104,10 @@ function initializeSocketHandlers(io) {
         });
 
         socket.on('end_turn', ({ roomId }) => {
-            if(pendingActions[roomId]) return;
+            if(pendingActions[roomId]) {
+                console.log(`Player ${socket.id} tried to end turn, but an action is pending.`);
+                return;
+            }
             const room = rooms[roomId];
             if (!room || !room.gameState) return;
             const currentPlayer = room.gameState.players[room.gameState.currentPlayerIndex];
