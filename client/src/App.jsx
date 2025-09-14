@@ -15,10 +15,10 @@ import GameLogo from './components/GameLogo';
 import HowToPlay from './components/HowToPlay';
 import AvatarSelection from './components/AvatarSelection';
 
-const socket = io("http://13.228.225.19:3001");
+// const socket = io("http://13.228.225.19:3001");
 // const socket = io("http://10.30.16.104:3001"); 
 // const socket = io("http://10.144.45.219:3001");
-
+const socket = io();
 // [เพิ่ม] ชุดข้อความสำหรับแปลภาษาในหน้าสร้างห้อง
 const translations = {
   en: {
