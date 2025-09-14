@@ -36,23 +36,40 @@ function checkAndStartGame(roomId, io) {
             turnVersion: 0,
         };
         
-        const botAvatars = {
-            1: '/src/assets/avatar/Avatar_01.png',
-            2: '/src/assets/avatar/Avatar_02.png',
-            3: '/src/assets/avatar/Avatar_03.png',
-            4: '/src/assets/avatar/Avatar_04.png',
-            5: '/src/assets/avatar/Avatar_05.png',
-            6: '/src/assets/avatar/Avatar_06.png',
-            7: '/src/assets/avatar/Avatar_07.png',
-            8: '/src/assets/avatar/Avatar_08.png',
-            9: '/src/assets/avatar/Avatar_09.png',
-            10: '/src/assets/avatar/Avatar_10.png',
-            11: '/src/assets/avatar/Avatar_11.png',
-            12: '/src/assets/avatar/Avatar_12.png',
-            13: '/src/assets/avatar/Avatar_13.png',
-            14: '/src/assets/avatar/Avatar_14.png',
-            15: '/src/assets/avatar/Avatar_15.png',
+        // const botAvatars = {
+        //     1: '/src/assets/avatar/Avatar_01.png',
+        //     2: '/src/assets/avatar/Avatar_02.png',
+        //     3: '/src/assets/avatar/Avatar_03.png',
+        //     4: '/src/assets/avatar/Avatar_04.png',
+        //     5: '/src/assets/avatar/Avatar_05.png',
+        //     6: '/src/assets/avatar/Avatar_06.png',
+        //     7: '/src/assets/avatar/Avatar_07.png',
+        //     8: '/src/assets/avatar/Avatar_08.png',
+        //     9: '/src/assets/avatar/Avatar_09.png',
+        //     10: '/src/assets/avatar/Avatar_10.png',
+        //     11: '/src/assets/avatar/Avatar_11.png',
+        //     12: '/src/assets/avatar/Avatar_12.png',
+        //     13: '/src/assets/avatar/Avatar_13.png',
+        //     14: '/src/assets/avatar/Avatar_14.png',
+        //     15: '/src/assets/avatar/Avatar_15.png',
 
+        // };
+                const botAvatars = {
+            1: '/avatars/Avatar_01.png',
+            2: '/avatars/Avatar_02.png',
+            3: '/avatars/Avatar_03.png',
+            4: '/avatars/Avatar_04.png',
+            5: '/avatars/Avatar_05.png',
+            6: '/avatars/Avatar_06.png',
+            7: '/avatars/Avatar_07.png',
+            8: '/avatars/Avatar_08.png',
+            9: '/avatars/Avatar_09.png',
+            10: '/avatars/Avatar_10.png',
+            11: '/avatars/Avatar_11.png',
+            12: '/avatars/Avatar_12.png',
+            13: '/avatars/Avatar_13.png',
+            14: '/avatars/Avatar_14.png',
+            15: '/avatars/Avatar_15.png',
         };
 
         room.players.forEach(player => {
@@ -66,7 +83,8 @@ function checkAndStartGame(roomId, io) {
 
         for(let i = 0; i < room.bots; i++) {
             const botNumber = i + 1;
-            const botAvatar = botAvatars[botNumber] || '/src/assets/avatar/Avatar_01.png';
+            // const botAvatar = botAvatars[botNumber] || '/src/assets/avatar/Avatar_01.png';
+            const botAvatar = botAvatars[botNumber] || '/avatars/Avatar_01.png';
 
             gameState.players.push({
                 id: `bot-${i+1}`,

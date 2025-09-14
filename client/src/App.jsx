@@ -52,7 +52,8 @@ function App() {
   const [maxPlayers, setMaxPlayers] = useState(2);
   const [numBots, setNumBots] = useState(0);
   const [language, setLanguage] = useState('en');
-  const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01.png');
+  // const [myAvatar, setMyAvatar] = useState('/src/assets/avatar/Avatar_01.png');
+  const [myAvatar, setMyAvatar] = useState('/avatars/Avatar_01.png');
   
   useEffect(() => {
     socket.on('room_created', (roomData) => {
