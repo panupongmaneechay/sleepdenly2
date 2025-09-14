@@ -217,7 +217,8 @@ function App() {
   
   return (
     <div className={getAppClassName()}>
-      {['home', 'create', 'join', 'waiting', 'howToPlay'].includes(view) && <GameLogo language={language} />}
+      {/* {['home', 'create', 'join', 'waiting', 'howToPlay'].includes(view) && <GameLogo language={language} />} */}
+      {['home', 'waiting', 'howToPlay'].includes(view) && <GameLogo language={language} />}
       {view !== 'summary' && <LanguageSwitcher currentLang={language} onLangChange={setLanguage} />}
       {renderContent()}
     </div>
