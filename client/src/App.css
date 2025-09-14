@@ -316,7 +316,7 @@ ul {
 .action-card.image-action-card {
   width: 140px;
   height: 220px;
-  border: 3px solid white;
+  border: 5px solid white;
   border-radius: 10px;
   background-color: #fff;
   transition: transform 0.2s ease, z-index 0.2s ease;

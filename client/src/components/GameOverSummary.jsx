@@ -9,7 +9,7 @@ const characterImages = {
   th: import.meta.glob('/src/assets/character_th/*.png', { eager: true }),
   jp: import.meta.glob('/src/assets/character_jp/*.png', { eager: true }),
 };
-const avatarImages = import.meta.glob('/src/assets/avatar/*.png', { eager: true, as: 'url' });
+// [ลบ] บรรทัด const avatarImages ... ทิ้งไป
 
 
 // [แก้ไข] Object สำหรับการแปลข้อความ
@@ -19,11 +19,11 @@ const translations = {
     summaryTitle: "Here's your sleep summary:",
     finalSleep: "Final Sleep:",
     hours: "hours",
-    goodFactors: "Good Sleep Factors", // [แก้ไข]
-    badFactors: "Bad Sleep Factors", // [แก้ไข]
-    behavior: "Behavior", // [เพิ่ม]
-    noOfHours: "No. of Hours", // [เพิ่ม]
-    luckyHours: "Lucky Hours", // [เพิ่ม]
+    goodFactors: "Good Sleep Factors", 
+    badFactors: "Bad Sleep Factors", 
+    behavior: "Behavior", 
+    noOfHours: "No. of Hours", 
+    luckyHours: "Lucky Hours", 
     none: "None",
     overallScore: "Overall Sleep Score:",
     playAgain: "Play Again",
@@ -44,9 +44,7 @@ const translations = {
         "drink_chamomile": "Drink chamomile",
         "good_income": "Good income",
         "drink_alcohol": "Drink alcohol (short term)",
-        "listen_music": "Listen a low ffrequency music at 432 Hz",
-        "eat_sweet_almonds": "Eat Sweet Almonds",
-        "eat_kiwi": "Eat Kiwi",
+        "listen_music": "Listen to music to reduce stress",
         "eye_patch": "Use eye patch",
         "drink_warm_milk": "Drink warm milk before going to bed",
         "eat_banana": "Eat a banana before going to bed",
@@ -107,9 +105,7 @@ const translations = {
         "drink_chamomile": "ดื่มคาโมมายล์",
         "good_income": "รายได้ดี",
         "drink_alcohol": "ดื่มแอลกอฮอล์ (ระยะสั้น)",
-        "listen_music": "ฟังดนตรีความถี่ต่ำที่ 432 เฮิรตซ์",
-        "eat_sweet_almonds": "กินอัลมอนด์หวาน",
-        "eat_kiwi": "กินกีวี",
+        "listen_music": "ฟังดนตรีลดความเครียด",
         "eye_patch": "ผ้าปิดตา",
         "drink_warm_milk": "ดื่มนมก่อนนอน",
         "eat_banana": "กินกล้วยก่อนนอน",
@@ -170,9 +166,7 @@ const translations = {
         "drink_chamomile": "カモミールを飲む",
         "good_income": "良い収入",
         "drink_alcohol": "アルコールを飲む (短期)",
-        "listen_music": "432Hzの低周波音楽を聴いてください",
-        "eat_sweet_almonds": "甘いアーモンドを食べて",
-        "eat_kiwi": "キウイを食べて。",
+        "listen_music": "音楽を聴いてストレスを軽減する",
         "eye_patch": "アイパッチ",
         "drink_warm_milk": "寝る前に暖かい牛乳を飲む",
         "eat_banana": "寝る前にバナナを食べる",
@@ -212,11 +206,12 @@ const getCharacterImage = (characterName, language) => {
     return imagePath ? images[imagePath].default : '';
 };
 
+// [แก้ไข] เปลี่ยนฟังก์ชัน getAvatarImage
 const getAvatarImage = (avatarPath) => {
-    return avatarImages[avatarPath];
+    return avatarPath; // ส่ง path กลับไปตรงๆ เพราะมันเป็น URL ที่ถูกต้องอยู่แล้ว
 };
 
-// [แก้ไข] สร้าง component ใหม่สำหรับตารางสรุป
+// สร้าง component ใหม่สำหรับตารางสรุป
 const SummaryTables = ({ character, history, language }) => {
   const t = translations[language] || translations.en;
   
@@ -304,7 +299,6 @@ const GameOverSummary = ({ summaryData, language }) => {
     const { winner, playHistory } = summaryData;
     const t = translations[language] || translations.en;
     
-    // [แก้ไข] กรองและจัดกลุ่มข้อมูลสำหรับตาราง
     const winnerHistory = playHistory.filter(action => action.targetPlayerId === winner.id);
     const totalSleepGoal = winner.characters.reduce((sum, char) => sum + char.sleepGoal, 0);
     const totalCurrentSleep = winner.characters.reduce((sum, char) => sum + char.currentSleep, 0);
@@ -315,7 +309,6 @@ const GameOverSummary = ({ summaryData, language }) => {
                 <h1>{t.congratulations}{winner.name}!</h1>
                 <p className="summary-subtitle">{t.summaryTitle}</p>
                 
-                {/* [แก้ไข] แสดง Avatar ของผู้ชนะ */}
                 <div className="winner-header-overall">
                     <img src={getAvatarImage(winner.avatar)} alt="Winner's Avatar" className="winner-avatar" />
                     <div className="winner-details-overall">
