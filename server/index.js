@@ -10,9 +10,9 @@ const app = express();
 app.use(cors());
 const server = http.createServer(app);
 const io = new Server(server, {
-  // cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] }
+  cors: { origin: "http://localhost:5173", methods: ["GET", "POST"] }
   // cors: { origin: "http://10.30.16.104:5173", methods: ["GET", "POST"] }
-  cors: { origin: "http://10.144.45.219:5173", methods: ["GET", "POST"] }
+  // cors: { origin: "http://10.144.45.219:5173", methods: ["GET", "POST"] }
 });
 
 // เรียกใช้ฟังก์ชันเพื่อเริ่มต้น event handlers ทั้งหมด
