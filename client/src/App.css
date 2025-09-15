@@ -190,10 +190,10 @@ ul {
   align-items: center;
   justify-content: center;
   color: white;
-  text-shadow: 1px 1px 3px white;
+  text-shadow: 1px 1px 3px black;
   border-radius: 12px;
   /* [แก้ไข] เพิ่มสีพื้นหลังเผื่อกรณีที่สัดส่วนรูปไม่พอดี */
-  background-color: #555;
+  background-color: #ffffff;
 }
 .character-image {
   width: 100%;
@@ -322,7 +322,7 @@ ul {
   border: 2px solid white;
   border-radius: 10px;
   /* [แก้ไข] เปลี่ยนสีพื้นหลังจากขาวเป็นสีเทาเข้ม */
-  background-color: #555;
+  background-color: #ffffff;
   transition: transform 0.2s ease, z-index 0.2s ease;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
