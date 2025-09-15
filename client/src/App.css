@@ -192,11 +192,14 @@ ul {
   color: white;
   text-shadow: 1px 1px 3px black;
   border-radius: 12px;
+  /* [แก้ไข] เพิ่มสีพื้นหลังเผื่อกรณีที่สัดส่วนรูปไม่พอดี */
+  background-color: #555;
 }
 .character-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* [แก้ไข] เปลี่ยนจาก cover เป็น contain เพื่อให้เห็นรูปภาพทั้งหมด */
+  object-fit: contain; 
   position: absolute;
   top: 0;
   left: 0;
@@ -318,7 +321,8 @@ ul {
   height: 220px;
   border: 2px solid white;
   border-radius: 10px;
-  background-color: #fff;
+  /* [แก้ไข] เปลี่ยนสีพื้นหลังจากขาวเป็นสีเทาเข้ม */
+  background-color: #555;
   transition: transform 0.2s ease, z-index 0.2s ease;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
@@ -358,7 +362,8 @@ ul {
 .action-card.image-action-card img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* [แก้ไข] เปลี่ยนจาก cover เป็น contain เพื่อให้เห็นรูปภาพทั้งหมด */
+  object-fit: contain;
   border-radius: 6px;
 }
 .action-card.image-action-card.reaction-card { border-color: #ffc107; }
