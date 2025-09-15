@@ -190,7 +190,7 @@ ul {
   align-items: center;
   justify-content: center;
   color: white;
-  text-shadow: 1px 1px 3px black;
+  text-shadow: 1px 1px 3px white;
   border-radius: 12px;
   /* [แก้ไข] เพิ่มสีพื้นหลังเผื่อกรณีที่สัดส่วนรูปไม่พอดี */
   background-color: #555;
