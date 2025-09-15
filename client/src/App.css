@@ -316,14 +316,14 @@ ul {
 .action-card.image-action-card {
   width: 140px;
   height: 220px;
-  border: 1px solid white;
+  border: 2px solid white;
   border-radius: 10px;
   background-color: #fff;
   transition: transform 0.2s ease, z-index 0.2s ease;
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.5);
   margin-left: -80px;
-  padding: 5px;
+  padding: 3px;
   box-sizing: border-box;
 }
 
